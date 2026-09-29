@@ -1,35 +1,12 @@
 export default async function handler(req, res) {
-  const RPC = "https://api.mainnet-beta.solana.com";
-
-  const sourceAddress =
-    "Vote111111111111111111111111111111111111111";
-
   try {
-    const response = await fetch(RPC, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getSignaturesForAddress",
-        params: [
-          sourceAddress,
-          {
-            limit: 10
-          }
-        ]
-      })
-    });
+    const RPC = "https://api.mainnet-beta.solana.com";
 
-    const data = await response.json();
+    const sourceAddress =
+      "Vote111111111111111111111111111111111111111";
 
-    const signatures = data.result || [];
-    const transactions = [];
-
-    for (const item of signatures) {
-      const txResponse = await fetch(RPC, {
+    async function rpc(method, params) {
+      const response = await fetch(RPC, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -37,18 +14,42 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: 1,
-          method: "getTransaction",
-          params: [
-            item.signature,
-            {
-              encoding: "jsonParsed",
-              maxSupportedTransactionVersion: 0
-            }
-          ]
+          method,
+          params
         })
       });
 
-      const txData = await txResponse.json();
+      return await response.json();
+    }
+
+    const signaturesData = await rpc(
+      "getSignaturesForAddress",
+      [
+        sourceAddress,
+        {
+          limit: 10
+        }
+      ]
+    );
+
+    const signatures =
+      signaturesData.result || [];
+
+    const transactions = [];
+    const walletSet = new Set();
+
+    for (const item of signatures) {
+      const txData = await rpc(
+        "getTransaction",
+        [
+          item.signature,
+          {
+            encoding: "jsonParsed",
+            maxSupportedTransactionVersion: 0
+          }
+        ]
+      );
+
       const tx = txData.result;
 
       if (!tx) continue;
@@ -56,55 +57,47 @@ export default async function handler(req, res) {
       const accountKeys =
         tx.transaction?.message?.accountKeys || [];
 
-      const wallets = accountKeys
-        .map(account =>
-          typeof account === "string"
-            ? account
-            : account.pubkey
-        )
-        .filter(Boolean);
+      const wallets =
+        accountKeys
+          .map(account =>
+            typeof account === "string"
+              ? account
+              : account.pubkey
+          )
+          .filter(Boolean);
+
+      wallets.forEach(wallet =>
+        walletSet.add(wallet)
+      );
 
       transactions.push({
         signature: item.signature,
         slot: item.slot,
-        blockTime: item.blockTime,
+        blockTime:
+          tx.blockTime ||
+          item.blockTime ||
+          null,
         wallets
       });
     }
 
-    const uniqueWallets = [
-      ...new Set(
-        transactions.flatMap(
-          tx => tx.wallets
-        )
-      )
-    ];
-
     const balances = {};
 
-    for (const address of uniqueWallets) {
-      const balanceResponse = await fetch(RPC, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBalance",
-          params: [address]
-        })
-      });
+    for (const wallet of walletSet) {
+      try {
+        const balanceData = await rpc(
+          "getBalance",
+          [wallet]
+        );
 
-      const balanceData =
-        await balanceResponse.json();
+        const lamports =
+          balanceData.result?.value || 0;
 
-      const lamports =
-        balanceData.result?.value;
-
-      if (typeof lamports === "number") {
-        balances[address] =
+        balances[wallet] =
           lamports / 1000000000;
+
+      } catch (error) {
+        balances[wallet] = 0;
       }
     }
 
@@ -116,6 +109,9 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       error: error.message
