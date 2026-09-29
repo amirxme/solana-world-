@@ -1,177 +1,552 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solana World</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Solana World</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      background: #050509;
-      color: white;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #030305;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-    #world {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at center, #111125 0%, #050509 55%, #020203 100%);
-    }
+#world {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(85, 70, 160, 0.13), transparent 35%),
+    radial-gradient(circle at 20% 20%, rgba(40, 130, 120, 0.08), transparent 30%),
+    #030305;
+}
 
-    .title {
-      position: absolute;
-      top: 25px;
-      left: 30px;
-      z-index: 10;
-    }
+/* STAR FIELD */
 
-    .title h1 {
-      font-size: 24px;
-      letter-spacing: 3px;
-    }
+.stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.7) 1px, transparent 1px),
+    radial-gradient(circle, rgba(150,140,255,.4) 1px, transparent 1px);
+  background-size: 90px 90px, 150px 150px;
+  background-position: 10px 20px, 60px 80px;
+  opacity: .28;
+  animation: drift 35s linear infinite;
+}
 
-    .title p {
-      margin-top: 6px;
-      color: #777;
-      font-size: 12px;
-    }
+@keyframes drift {
+  from { transform: translate(0,0); }
+  to { transform: translate(-90px,-90px); }
+}
 
-    .node {
-      position: absolute;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      cursor: pointer;
-      user-select: none;
-      transition: 0.2s;
-      box-shadow: 0 0 25px rgba(120, 80, 255, 0.35);
-    }
+/* HEADER */
 
-    .node:hover {
-      transform: scale(1.2);
-    }
+.header {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 20;
+}
 
-    .wallet {
-      background: #302080;
-    }
+.logo {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
 
-    .token {
-      background: #146b65;
-    }
+.subtitle {
+  margin-top: 7px;
+  color: #777;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
 
-    .tx {
-      background: #8a5a16;
-      width: 50px;
-      height: 50px;
-    }
+.live {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
 
-    .line {
-      position: absolute;
-      height: 1px;
-      background: rgba(130, 120, 255, 0.3);
-      transform-origin: left center;
-    }
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55d6a2;
+  box-shadow: 0 0 12px rgba(85,214,162,.9);
+  animation: pulse 1.4s infinite;
+}
 
-    .panel {
-      position: absolute;
-      right: 25px;
-      top: 25px;
-      width: 280px;
-      padding: 20px;
-      background: rgba(12, 12, 20, 0.9);
-      border: 1px solid #252538;
-      border-radius: 14px;
-      display: none;
-      z-index: 20;
-    }
+@keyframes pulse {
+  50% { opacity: .3; }
+}
 
-    .panel h2 {
-      margin-bottom: 10px;
-    }
+/* WORLD */
 
-    .panel p {
-      color: #888;
-      font-size: 13px;
-      line-height: 1.6;
-    }
+#space {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transition: transform .15s ease-out;
+}
 
-    .status {
-      position: absolute;
-      bottom: 20px;
-      left: 25px;
-      color: #666;
-      font-size: 12px;
-    }
-  </style>
+.node {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.node:hover {
+  transform: scale(1.25);
+}
+
+.wallet {
+  background: radial-gradient(circle at 35% 30%, #927cff, #34227c);
+  box-shadow:
+    0 0 20px rgba(112,83,255,.65),
+    0 0 60px rgba(112,83,255,.18);
+}
+
+.token {
+  background: radial-gradient(circle at 35% 30%, #63e4ce, #12675c);
+  box-shadow:
+    0 0 20px rgba(70,220,190,.55),
+    0 0 60px rgba(70,220,190,.15);
+}
+
+.tx {
+  width: 28px;
+  height: 28px;
+  background: #d59a45;
+  box-shadow:
+    0 0 18px rgba(213,154,69,.8);
+  animation: txPulse 1.5s infinite;
+}
+
+@keyframes txPulse {
+  50% { transform: scale(1.25); }
+}
+
+/* CONNECTIONS */
+
+.connection {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(130,110,255,0),
+    rgba(130,110,255,.35),
+    rgba(80,220,190,.25),
+    rgba(130,110,255,0)
+  );
+  transform-origin: left center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* FLYING TRANSACTIONS */
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d9a34d;
+  box-shadow: 0 0 12px #d9a34d;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* EVENT FEED */
+
+.feed {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  width: 290px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.feed-title {
+  color: #666;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 9px;
+}
+
+.event {
+  padding: 7px 10px;
+  margin-top: 5px;
+  background: rgba(8,8,13,.72);
+  border-left: 2px solid rgba(130,110,255,.5);
+  color: #aaa;
+  font-size: 10px;
+  backdrop-filter: blur(8px);
+  animation: eventIn .35s ease;
+}
+
+@keyframes eventIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* INFO PANEL */
+
+.panel {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: 270px;
+  padding: 18px;
+  z-index: 30;
+  display: none;
+  background: rgba(8,8,14,.94);
+  border: 1px solid #242432;
+  border-radius: 14px;
+  backdrop-filter: blur(15px);
+}
+
+.panel.active {
+  display: block;
+}
+
+.panel-label {
+  color: #666;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 7px;
+}
+
+.panel h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.panel p {
+  color: #888;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.close {
+  position: absolute;
+  right: 13px;
+  top: 11px;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* BOTTOM STATUS */
+
+.status {
+  position: absolute;
+  right: 25px;
+  top: 58px;
+  color: #555;
+  font-size: 9px;
+  letter-spacing: 1px;
+  z-index: 20;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .header {
+    top: 18px;
+    left: 18px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .live {
+    top: 20px;
+    right: 18px;
+  }
+
+  .feed {
+    left: 18px;
+    bottom: 18px;
+    width: 220px;
+  }
+
+  .panel {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    width: auto;
+  }
+
+  .status {
+    display: none;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <div id="world">
+<div id="world">
 
-    <div class="title">
-      <h1>SOLANA WORLD</h1>
-      <p>Explore the blockchain as a living world.</p>
+  <div class="stars"></div>
+
+  <div class="header">
+    <div class="logo">SOLANA WORLD</div>
+    <div class="subtitle">THE BLOCKCHAIN, ALIVE.</div>
+  </div>
+
+  <div class="live">
+    <span class="live-dot"></span>
+    LIVE
+  </div>
+
+  <div class="status">
+    SIMULATED NETWORK
+  </div>
+
+  <div id="space">
+
+    <!-- CONNECTIONS -->
+
+    <div class="connection"
+      style="left:22%; top:38%; width:31%; transform:rotate(-18deg);">
     </div>
 
-    <div class="node wallet" style="left:20%; top:35%;" onclick="showNode('Wallet #01')">
+    <div class="connection"
+      style="left:52%; top:30%; width:25%; transform:rotate(42deg);">
+    </div>
+
+    <div class="connection"
+      style="left:35%; top:65%; width:20%; transform:rotate(-38deg);">
+    </div>
+
+    <div class="connection"
+      style="left:53%; top:53%; width:24%; transform:rotate(5deg);">
+    </div>
+
+    <!-- NODES -->
+
+    <div class="node wallet"
+      style="left:18%; top:35%;"
+      onclick="openNode('WALLET #01','Wallet','An active Solana wallet. In the live version this object will represent a real public address.')">
       WALLET
     </div>
 
-    <div class="node token" style="left:50%; top:25%;" onclick="showNode('$TOKEN')">
+    <div class="node token"
+      style="left:49%; top:25%;"
+      onclick="openNode('$TOKEN','TOKEN','A token existing somewhere inside the Solana ecosystem.')">
       $TOKEN
     </div>
 
-    <div class="node wallet" style="left:70%; top:55%;" onclick="showNode('Wallet #02')">
+    <div class="node wallet"
+      style="left:72%; top:50%;"
+      onclick="openNode('WALLET #02','WALLET','Another wallet interacting with the network.')">
       WALLET
     </div>
 
-    <div class="node token" style="left:35%; top:65%;" onclick="showNode('$MEME')">
+    <div class="node token"
+      style="left:32%; top:63%;"
+      onclick="openNode('$MEME','TOKEN','A simulated meme token. Real blockchain data will replace this later.')">
       $MEME
     </div>
 
-    <div class="node tx" style="left:55%; top:50%;" onclick="showNode('Transaction')">
-      TX
-    </div>
-
-    <div class="panel" id="panel">
-      <h2 id="panelTitle"></h2>
-      <p id="panelText"></p>
-    </div>
-
-    <div class="status">
-      ● WORLD ONLINE
+    <div class="node tx"
+      style="left:53%; top:51%;"
+      onclick="openNode('TRANSACTION','TRANSACTION','A simulated transaction moving through the network.')">
     </div>
 
   </div>
 
-  <script>
-    function showNode(name) {
-      const panel = document.getElementById("panel");
-      const title = document.getElementById("panelTitle");
-      const text = document.getElementById("panelText");
+  <div class="feed">
 
-      title.textContent = name;
-      text.textContent =
-        "This object represents an on-chain entity. In the full version, this space will contain live Solana data.";
+    <div class="feed-title">
+      LIVE NETWORK
+    </div>
 
-      panel.style.display = "block";
+    <div id="events"></div>
+
+  </div>
+
+  <div class="panel" id="panel">
+
+    <div class="close" onclick="closePanel()">×</div>
+
+    <div class="panel-label" id="panelType"></div>
+
+    <h2 id="panelTitle"></h2>
+
+    <p id="panelText"></p>
+
+  </div>
+
+</div>
+
+<script>
+
+const space = document.getElementById("space");
+const events = document.getElementById("events");
+
+function openNode(title, type, description) {
+
+  document.getElementById("panel").classList.add("active");
+
+  document.getElementById("panelType").textContent = type;
+
+  document.getElementById("panelTitle").textContent = title;
+
+  document.getElementById("panelText").textContent = description;
+}
+
+function closePanel() {
+  document.getElementById("panel").classList.remove("active");
+}
+
+/* RANDOM EVENTS */
+
+const messages = [
+  "New wallet connected",
+  "Token interaction detected",
+  "Large transaction observed",
+  "Wallet moved SOL",
+  "New token activity",
+  "Swap detected",
+  "Network activity increased",
+  "New address discovered"
+];
+
+function addEvent() {
+
+  const event = document.createElement("div");
+
+  event.className = "event";
+
+  event.textContent =
+    "● " + messages[Math.floor(Math.random() * messages.length)];
+
+  events.prepend(event);
+
+  if (events.children.length > 4) {
+    events.removeChild(events.lastChild);
+  }
+}
+
+setInterval(addEvent, 2600);
+
+addEvent();
+addEvent();
+
+/* FLYING PARTICLE */
+
+function createParticle() {
+
+  const particle = document.createElement("div");
+
+  particle.className = "particle";
+
+  const startX = 20 + Math.random() * 50;
+
+  const startY = 30 + Math.random() * 35;
+
+  const endX = 35 + Math.random() * 40;
+
+  const endY = 25 + Math.random() * 45;
+
+  particle.style.left = startX + "%";
+
+  particle.style.top = startY + "%";
+
+  space.appendChild(particle);
+
+  const duration = 900 + Math.random() * 900;
+
+  const start = performance.now();
+
+  function animate(time) {
+
+    const progress =
+      Math.min((time - start) / duration, 1);
+
+    particle.style.left =
+      (startX + (endX - startX) * progress) + "%";
+
+    particle.style.top =
+      (startY + (endY - startY) * progress) + "%";
+
+    particle.style.opacity =
+      1 - progress;
+
+    if (progress < 1) {
+
+      requestAnimationFrame(animate);
+
+    } else {
+
+      particle.remove();
+
     }
-  </script>
+  }
+
+  requestAnimationFrame(animate);
+}
+
+setInterval(createParticle, 1100);
+
+/* SUBTLE WORLD MOVEMENT */
+
+let offsetX = 0;
+let offsetY = 0;
+
+document.addEventListener("mousemove", (e) => {
+
+  const x =
+    (e.clientX / window.innerWidth - .5) * 8;
+
+  const y =
+    (e.clientY / window.innerHeight - .5) * 8;
+
+  space.style.transform =
+    `translate(${x}px, ${y}px)`;
+
+});
+
+</script>
 
 </body>
 </html>
