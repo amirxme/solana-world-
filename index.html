@@ -708,5 +708,482 @@ document.addEventListener("touchend", () => {
   initialDistance = null;
 
 });
+/* ================================
+   SOLANA WORLD — DYNAMIC WORLD
+================================ */
+
+const dynamicWorld = document.createElement("div");
+dynamicWorld.id = "dynamicWorld";
+
+Object.assign(dynamicWorld.style, {
+  position: "absolute",
+  inset: "0",
+  pointerEvents: "none"
+});
+
+space.appendChild(dynamicWorld);
+
+
+/* ---------- DATA ---------- */
+
+const wallets = [];
+const tokens = [];
+const transactions = [];
+
+const walletNames = [
+  "7xK9...mP2",
+  "4QvA...8zL",
+  "9Hd3...kR1",
+  "2LmP...7Xa",
+  "8TfQ...3Ns",
+  "5ZaR...91K",
+  "6YuE...4Bd",
+  "3NpX...q72"
+];
+
+const tokenNames = [
+  "$SOL",
+  "$BONK",
+  "$WIF",
+  "$JUP",
+  "$RAY",
+  "$SHAME"
+];
+
+
+/* ---------- CREATE NODE ---------- */
+
+function createNode(type, x, y, name) {
+
+  const node = document.createElement("div");
+
+  node.className = `dynamic-node ${type}`;
+
+  const size =
+    type === "wallet"
+      ? 18 + Math.random() * 18
+      : type === "token"
+      ? 28 + Math.random() * 22
+      : 10 + Math.random() * 8;
+
+  Object.assign(node.style, {
+    position: "absolute",
+    left: `${x}%`,
+    top: `${y}%`,
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: "50%",
+    transform: "translate(-50%, -50%)",
+    pointerEvents: type === "tx" ? "none" : "auto",
+    cursor: type === "tx" ? "default" : "pointer",
+    zIndex: type === "token" ? "5" : "3"
+  });
+
+  node.dataset.name = name;
+
+  node.addEventListener("click", () => {
+
+    if (typeof openNode === "function") {
+
+      const description =
+        type === "wallet"
+          ? `Wallet activity detected on Solana. Address: ${name}`
+          : `Token activity detected on Solana. Asset: ${name}`;
+
+      openNode(
+        type.toUpperCase(),
+        name,
+        description
+      );
+    }
+
+  });
+
+  dynamicWorld.appendChild(node);
+
+  return {
+    element: node,
+    x,
+    y,
+    type,
+    name,
+    vx: (Math.random() - 0.5) * 0.025,
+    vy: (Math.random() - 0.5) * 0.025
+  };
+}
+
+
+/* ---------- CREATE WALLETS ---------- */
+
+for (let i = 0; i < 28; i++) {
+
+  const x = 8 + Math.random() * 84;
+  const y = 12 + Math.random() * 76;
+
+  const name =
+    walletNames[i % walletNames.length];
+
+  wallets.push(
+    createNode(
+      "wallet",
+      x,
+      y,
+      name
+    )
+  );
+}
+
+
+/* ---------- CREATE TOKENS ---------- */
+
+for (let i = 0; i < 10; i++) {
+
+  const x = 12 + Math.random() * 76;
+  const y = 15 + Math.random() * 70;
+
+  const name =
+    tokenNames[i % tokenNames.length];
+
+  tokens.push(
+    createNode(
+      "token",
+      x,
+      y,
+      name
+    )
+  );
+}
+
+
+/* ---------- CONNECTIONS ---------- */
+
+const connectionLayer =
+  document.createElement("canvas");
+
+connectionLayer.id = "connectionLayer";
+
+Object.assign(connectionLayer.style, {
+  position: "absolute",
+  inset: "0",
+  width: "100%",
+  height: "100%",
+  pointerEvents: "none",
+  zIndex: "1"
+});
+
+dynamicWorld.prepend(connectionLayer);
+
+const ctx = connectionLayer.getContext("2d");
+
+
+function resizeConnectionCanvas() {
+
+  connectionLayer.width =
+    dynamicWorld.clientWidth;
+
+  connectionLayer.height =
+    dynamicWorld.clientHeight;
+}
+
+resizeConnectionCanvas();
+
+window.addEventListener(
+  "resize",
+  resizeConnectionCanvas
+);
+
+
+/* ---------- CONNECTION PAIRS ---------- */
+
+const connections = [];
+
+function connect(a, b) {
+
+  connections.push({
+    a,
+    b,
+    activity: Math.random()
+  });
+}
+
+
+/* connect wallets to nearby wallets */
+
+for (let i = 0; i < wallets.length; i++) {
+
+  const wallet = wallets[i];
+
+  for (let j = 0; j < 2; j++) {
+
+    const target =
+      wallets[
+        Math.floor(
+          Math.random() * wallets.length
+        )
+      ];
+
+    if (target !== wallet) {
+      connect(wallet, target);
+    }
+  }
+}
+
+
+/* connect tokens to wallets */
+
+tokens.forEach(token => {
+
+  for (let i = 0; i < 4; i++) {
+
+    const wallet =
+      wallets[
+        Math.floor(
+          Math.random() * wallets.length
+        )
+      ];
+
+    connect(token, wallet);
+  }
+});
+
+
+/* ---------- TRANSACTIONS ---------- */
+
+function createTransaction() {
+
+  const connection =
+    connections[
+      Math.floor(
+        Math.random() * connections.length
+      )
+    ];
+
+  if (!connection) return;
+
+  const tx = document.createElement("div");
+
+  tx.className = "dynamic-tx";
+
+  Object.assign(tx.style, {
+    position: "absolute",
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: "#ff8a00",
+    boxShadow:
+      "0 0 10px #ff8a00, 0 0 25px #ff8a00",
+    pointerEvents: "none",
+    zIndex: "8"
+  });
+
+  dynamicWorld.appendChild(tx);
+
+  transactions.push({
+    element: tx,
+    connection,
+    progress: 0
+  });
+}
+
+
+/* initial transactions */
+
+for (let i = 0; i < 8; i++) {
+  createTransaction();
+}
+
+
+/* new transaction every 900ms */
+
+setInterval(
+  createTransaction,
+  900
+);
+
+
+/* ---------- ANIMATION ---------- */
+
+function animateWorld() {
+
+  /* move nodes */
+
+  [...wallets, ...tokens].forEach(node => {
+
+    node.x += node.vx;
+    node.y += node.vy;
+
+    if (node.x < 4 || node.x > 96) {
+      node.vx *= -1;
+    }
+
+    if (node.y < 6 || node.y > 94) {
+      node.vy *= -1;
+    }
+
+    node.element.style.left =
+      `${node.x}%`;
+
+    node.element.style.top =
+      `${node.y}%`;
+  });
+
+
+  /* draw connections */
+
+  ctx.clearRect(
+    0,
+    0,
+    connectionLayer.width,
+    connectionLayer.height
+  );
+
+  connections.forEach(connection => {
+
+    const a = connection.a;
+    const b = connection.b;
+
+    const ax =
+      a.x / 100 *
+      connectionLayer.width;
+
+    const ay =
+      a.y / 100 *
+      connectionLayer.height;
+
+    const bx =
+      b.x / 100 *
+      connectionLayer.width;
+
+    const by =
+      b.y / 100 *
+      connectionLayer.height;
+
+    ctx.beginPath();
+
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+
+    ctx.strokeStyle =
+      "rgba(120,130,160,0.12)";
+
+    ctx.lineWidth = 1;
+
+    ctx.stroke();
+  });
+
+
+  /* move transactions */
+
+  transactions.forEach((tx, index) => {
+
+    tx.progress += 0.008;
+
+    if (tx.progress >= 1) {
+
+      tx.element.remove();
+
+      transactions.splice(index, 1);
+
+      return;
+    }
+
+    const a =
+      tx.connection.a;
+
+    const b =
+      tx.connection.b;
+
+    const progress =
+      tx.progress;
+
+    const x =
+      a.x +
+      (b.x - a.x) *
+      progress;
+
+    const y =
+      a.y +
+      (b.y - a.y) *
+      progress;
+
+    tx.element.style.left =
+      `${x}%`;
+
+    tx.element.style.top =
+      `${y}%`;
+  });
+
+
+  requestAnimationFrame(
+    animateWorld
+  );
+}
+
+animateWorld();
+
+
+/* ---------- NODE VISUALS ---------- */
+
+const dynamicStyle =
+  document.createElement("style");
+
+dynamicStyle.textContent = `
+
+.dynamic-node {
+  transition:
+    width 0.3s,
+    height 0.3s,
+    filter 0.3s;
+}
+
+.dynamic-node.wallet {
+
+  background:
+    radial-gradient(
+      circle,
+      #c9b8ff 0%,
+      #7355ff 35%,
+      #382080 75%,
+      transparent 76%
+    );
+
+  box-shadow:
+    0 0 12px #7658ff,
+    0 0 30px rgba(118,88,255,0.5);
+
+}
+
+.dynamic-node.token {
+
+  background:
+    radial-gradient(
+      circle,
+      #b8ffdc 0%,
+      #21d486 35%,
+      #08764b 75%,
+      transparent 76%
+    );
+
+  box-shadow:
+    0 0 14px #21d486,
+    0 0 35px rgba(33,212,134,0.5);
+
+}
+
+.dynamic-node:hover {
+
+  filter:
+    brightness(1.8)
+    drop-shadow(
+      0 0 12px white
+    );
+
+}
+
+`;
+
+document.head.appendChild(
+  dynamicStyle
+);
 </body>
 </html>
