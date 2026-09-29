@@ -3,498 +3,391 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Solana World</title>
 
 <style>
+*{box-sizing:border-box}
 
-* {
-  box-sizing: border-box;
+html,body{
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+background:#03040a;
+color:#fff;
+font-family:Arial,Helvetica,sans-serif;
 }
 
-html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #03040a;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
+body{
+user-select:none;
+touch-action:none;
 }
 
-body {
-  user-select: none;
-  touch-action: none;
+#world{
+position:fixed;
+inset:0;
+overflow:hidden;
 }
 
-/* WORLD */
-
-#world {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
+#space{
+position:absolute;
+width:100%;
+height:100%;
+transform-origin:center center;
 }
 
-#space {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform-origin: center center;
+.stars{
+position:absolute;
+inset:-20%;
+background-image:
+radial-gradient(circle,rgba(255,255,255,.7) 1px,transparent 1px),
+radial-gradient(circle,rgba(255,255,255,.35) 1px,transparent 1px);
+background-size:90px 90px,150px 150px;
+background-position:10px 20px,50px 80px;
+opacity:.35;
 }
 
-/* STARS */
-
-.stars {
-  position: absolute;
-  inset: -20%;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,.7) 1px, transparent 1px),
-    radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px);
-  background-size: 90px 90px, 150px 150px;
-  background-position: 10px 20px, 50px 80px;
-  opacity: .35;
+.header{
+position:fixed;
+top:24px;
+left:28px;
+z-index:100;
+pointer-events:none;
 }
 
-/* HEADER */
-
-.header {
-  position: fixed;
-  top: 24px;
-  left: 28px;
-  z-index: 100;
-  pointer-events: none;
+.logo{
+font-size:18px;
+font-weight:800;
+letter-spacing:4px;
 }
 
-.logo {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 4px;
+.subtitle{
+margin-top:6px;
+font-size:10px;
+letter-spacing:3px;
+color:#777b8d;
 }
 
-.subtitle {
-  margin-top: 6px;
-  font-size: 10px;
-  letter-spacing: 3px;
-  color: #777b8d;
+.live{
+margin-top:14px;
+display:flex;
+align-items:center;
+gap:7px;
+font-size:10px;
+letter-spacing:2px;
+color:#73ffb2;
 }
 
-.live {
-  margin-top: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #73ffb2;
+.live-dot{
+width:7px;
+height:7px;
+border-radius:50%;
+background:#73ffb2;
+box-shadow:0 0 12px #73ffb2;
 }
 
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #73ffb2;
-  box-shadow: 0 0 12px #73ffb2;
+.info{
+position:fixed;
+right:24px;
+top:24px;
+z-index:100;
+text-align:right;
+color:#777b8d;
+font-size:10px;
+letter-spacing:1.5px;
+line-height:1.8;
+pointer-events:none;
 }
 
-/* INFO */
-
-.info {
-  position: fixed;
-  right: 24px;
-  top: 24px;
-  z-index: 100;
-  text-align: right;
-  color: #777b8d;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  line-height: 1.8;
-  pointer-events: none;
+#connectionLayer{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+pointer-events:none;
+z-index:3;
 }
 
-/* CONNECTIONS */
-
-#connectionLayer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+.node{
+position:absolute;
+transform:translate(-50%,-50%);
+border-radius:50%;
+cursor:pointer;
+z-index:10;
 }
 
-/* NODES */
-
-.node {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 10;
+.wallet{
+width:25px;
+height:25px;
+background:radial-gradient(circle,#ddd5ff 0%,#8166ff 35%,#3b278c 70%,transparent 72%);
+box-shadow:0 0 12px #7658ff,0 0 32px rgba(118,88,255,.45);
 }
 
-.wallet {
-  width: 25px;
-  height: 25px;
-  background:
-    radial-gradient(
-      circle,
-      #ddd5ff 0%,
-      #8166ff 35%,
-      #3b278c 70%,
-      transparent 72%
-    );
-  box-shadow:
-    0 0 12px #7658ff,
-    0 0 32px rgba(118,88,255,.45);
+.token{
+width:39px;
+height:39px;
+background:radial-gradient(circle,#d0ffe8 0%,#21d486 35%,#08754a 70%,transparent 72%);
+box-shadow:0 0 15px #21d486,0 0 38px rgba(33,212,134,.45);
 }
 
-.token {
-  width: 39px;
-  height: 39px;
-  background:
-    radial-gradient(
-      circle,
-      #d0ffe8 0%,
-      #21d486 35%,
-      #08754a 70%,
-      transparent 72%
-    );
-  box-shadow:
-    0 0 15px #21d486,
-    0 0 38px rgba(33,212,134,.45);
+.tx{
+width:18px;
+height:18px;
+background:#ff8a00;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:7px;
+font-weight:bold;
+box-shadow:0 0 12px #ff8a00,0 0 30px rgba(255,138,0,.6);
 }
 
-.tx {
-  width: 18px;
-  height: 18px;
-  background: #ff8a00;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 7px;
-  font-weight: bold;
-  box-shadow:
-    0 0 12px #ff8a00,
-    0 0 30px rgba(255,138,0,.6);
+.node:hover,
+.dynamic-node:hover{
+filter:brightness(1.8);
 }
 
-.node:hover {
-  filter: brightness(1.7);
+.panel{
+position:fixed;
+right:24px;
+bottom:24px;
+width:280px;
+padding:18px;
+z-index:200;
+background:rgba(7,9,18,.88);
+border:1px solid rgba(255,255,255,.1);
+border-radius:14px;
+backdrop-filter:blur(18px);
+box-shadow:0 20px 70px rgba(0,0,0,.45);
+display:none;
 }
 
-/* PANEL */
-
-.panel {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 280px;
-  padding: 18px;
-  z-index: 200;
-
-  background: rgba(7,9,18,.88);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 14px;
-
-  backdrop-filter: blur(18px);
-
-  box-shadow:
-    0 20px 70px rgba(0,0,0,.45);
-
-  display: none;
+.panel-type{
+font-size:9px;
+letter-spacing:2px;
+color:#777b8d;
+margin-bottom:7px;
 }
 
-.panel-type {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #777b8d;
-  margin-bottom: 7px;
+.panel-title{
+font-size:16px;
+font-weight:700;
+margin-bottom:9px;
 }
 
-.panel-title {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 9px;
+.panel-text{
+font-size:11px;
+line-height:1.6;
+color:#969aaa;
 }
 
-.panel-text {
-  font-size: 11px;
-  line-height: 1.6;
-  color: #969aaa;
+.feed{
+position:fixed;
+left:24px;
+bottom:24px;
+width:250px;
+z-index:100;
+pointer-events:none;
 }
 
-/* EVENT FEED */
-
-.feed {
-  position: fixed;
-  left: 24px;
-  bottom: 24px;
-  width: 250px;
-  z-index: 100;
-  pointer-events: none;
+.feed-title{
+font-size:9px;
+letter-spacing:2px;
+color:#666b7d;
+margin-bottom:8px;
 }
 
-.feed-title {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #666b7d;
-  margin-bottom: 8px;
+.event{
+font-size:9px;
+color:#777b8d;
+margin-top:5px;
 }
 
-.event {
-  font-size: 9px;
-  color: #777b8d;
-  margin-top: 5px;
+.event span{
+color:#bfc3d2;
 }
 
-.event span {
-  color: #bfc3d2;
+.dynamic-node{
+position:absolute;
+transform:translate(-50%,-50%);
+border-radius:50%;
+pointer-events:auto;
+cursor:pointer;
+z-index:20;
 }
 
-/* DYNAMIC WORLD */
-
-.dynamic-node {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: 20;
-  transition: filter .2s;
+.dynamic-node.wallet{
+background:radial-gradient(circle,#ddd5ff 0%,#7658ff 35%,#392182 70%,transparent 72%);
+box-shadow:0 0 12px #7658ff,0 0 28px rgba(118,88,255,.45);
 }
 
-.dynamic-node.wallet {
-  background:
-    radial-gradient(
-      circle,
-      #ddd5ff 0%,
-      #7658ff 35%,
-      #392182 70%,
-      transparent 72%
-    );
-
-  box-shadow:
-    0 0 12px #7658ff,
-    0 0 28px rgba(118,88,255,.45);
+.dynamic-node.token{
+background:radial-gradient(circle,#d0ffe8 0%,#21d486 35%,#08754a 70%,transparent 72%);
+box-shadow:0 0 15px #21d486,0 0 35px rgba(33,212,134,.5);
 }
 
-.dynamic-node.token {
-  background:
-    radial-gradient(
-      circle,
-      #d0ffe8 0%,
-      #21d486 35%,
-      #08754a 70%,
-      transparent 72%
-    );
-
-  box-shadow:
-    0 0 15px #21d486,
-    0 0 35px rgba(33,212,134,.5);
+.dynamic-tx{
+position:absolute;
+width:7px;
+height:7px;
+border-radius:50%;
+background:#ff8a00;
+box-shadow:0 0 10px #ff8a00,0 0 25px #ff8a00;
+pointer-events:none;
+z-index:50;
 }
 
-.dynamic-node:hover {
-  filter: brightness(1.8);
+.activity-cluster{
+position:absolute;
+transform:translate(-50%,-50%);
+border-radius:50%;
+background:radial-gradient(circle,rgba(105,80,255,.14) 0%,rgba(105,80,255,.06) 38%,rgba(105,80,255,.02) 62%,transparent 72%);
+border:1px solid rgba(120,100,255,.08);
+box-shadow:0 0 70px rgba(105,80,255,.08);
+animation:clusterPulse 4s ease-in-out infinite;
+z-index:1;
 }
 
-.dynamic-tx {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ff8a00;
-  box-shadow:
-    0 0 10px #ff8a00,
-    0 0 25px #ff8a00;
-  pointer-events: none;
-  z-index: 50;
+.activity-cluster.green{
+background:radial-gradient(circle,rgba(30,210,135,.14) 0%,rgba(30,210,135,.05) 42%,transparent 72%);
 }
 
-/* MOBILE */
-
-@media (max-width: 700px) {
-
-  .header {
-    top: 18px;
-    left: 18px;
-  }
-
-  .info {
-    top: 18px;
-    right: 18px;
-  }
-
-  .feed {
-    left: 18px;
-    bottom: 18px;
-    width: 190px;
-  }
-
-  .panel {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
-    width: auto;
-  }
-
+.activity-cluster.orange{
+background:radial-gradient(circle,rgba(255,138,0,.14) 0%,rgba(255,138,0,.05) 42%,transparent 72%);
 }
 
+.activity-cluster.blue{
+background:radial-gradient(circle,rgba(80,160,255,.13) 0%,rgba(80,160,255,.04) 42%,transparent 72%);
+}
+
+.cluster-label{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+font-size:8px;
+letter-spacing:3px;
+color:rgba(180,185,210,.32);
+white-space:nowrap;
+}
+
+.network-pulse{
+position:absolute;
+width:5px;
+height:5px;
+border-radius:50%;
+background:white;
+box-shadow:0 0 8px white,0 0 18px rgba(255,255,255,.8);
+pointer-events:none;
+z-index:40;
+animation:pulseExpand 1.4s ease-out forwards;
+}
+
+@keyframes clusterPulse{
+0%{transform:translate(-50%,-50%) scale(.96);opacity:.55}
+50%{transform:translate(-50%,-50%) scale(1.04);opacity:1}
+100%{transform:translate(-50%,-50%) scale(.96);opacity:.55}
+}
+
+@keyframes pulseExpand{
+0%{
+transform:translate(-50%,-50%) scale(.4);
+opacity:1;
+}
+100%{
+transform:translate(-50%,-50%) scale(7);
+opacity:0;
+}
+}
+
+@media(max-width:700px){
+.header{top:18px;left:18px}
+.info{top:18px;right:18px}
+.feed{left:18px;bottom:18px;width:190px}
+.panel{left:18px;right:18px;bottom:18px;width:auto}
+}
 </style>
 </head>
 
 <body>
 
 <div id="world">
+<div id="space">
 
-  <div id="space">
+<div class="stars"></div>
+<canvas id="connectionLayer"></canvas>
 
-    <div class="stars"></div>
-
-    <canvas id="connectionLayer"></canvas>
-
-    <!-- ORIGINAL NODES -->
-
-    <div
-      class="node wallet"
-      style="left:27%;top:35%;"
-      onclick="openNode(
-        'WALLET',
-        '7xK9...mP2',
-        'Active Solana wallet interacting with the network.'
-      )">
-    </div>
-
-    <div
-      class="node wallet"
-      style="left:69%;top:31%;"
-      onclick="openNode(
-        'WALLET',
-        '4QvA...8zL',
-        'Active wallet connected to multiple assets.'
-      )">
-    </div>
-
-    <div
-      class="node token"
-      style="left:43%;top:60%;"
-      onclick="openNode(
-        'TOKEN',
-        '$SOL',
-        'Native Solana asset.'
-      )">
-    </div>
-
-    <div
-      class="node token"
-      style="left:73%;top:67%;"
-      onclick="openNode(
-        'TOKEN',
-        '$WIF',
-        'Solana ecosystem token.'
-      )">
-    </div>
-
-    <div
-      class="node tx"
-      style="left:53%;top:51%;"
-      onclick="openNode(
-        'TRANSACTION',
-        'TRANSACTION',
-        'A simulated transaction moving through the network.'
-      )">
-      ⚡ TX
-    </div>
-
-  </div>
-
+<div class="node wallet"
+style="left:27%;top:35%;"
+onclick="openNode('WALLET','7xK9...mP2','Active Solana wallet interacting with the network.')">
 </div>
 
+<div class="node wallet"
+style="left:69%;top:31%;"
+onclick="openNode('WALLET','4QvA...8zL','Active wallet connected to multiple assets.')">
+</div>
 
-<!-- HEADER -->
+<div class="node token"
+style="left:43%;top:60%;"
+onclick="openNode('TOKEN','$SOL','Native Solana asset.')">
+</div>
+
+<div class="node token"
+style="left:73%;top:67%;"
+onclick="openNode('TOKEN','$WIF','Solana ecosystem token.')">
+</div>
+
+<div class="node tx"
+style="left:53%;top:51%;"
+onclick="openNode('TRANSACTION','TRANSACTION','A simulated transaction moving through the network.')">
+⚡ TX
+</div>
+
+</div>
+</div>
 
 <div class="header">
-
-  <div class="logo">
-    SOLANA WORLD
-  </div>
-
-  <div class="subtitle">
-    THE BLOCKCHAIN, ALIVE.
-  </div>
-
-  <div class="live">
-    <div class="live-dot"></div>
-    LIVE NETWORK
-  </div>
-
+<div class="logo">SOLANA WORLD</div>
+<div class="subtitle">THE BLOCKCHAIN, ALIVE.</div>
+<div class="live">
+<div class="live-dot"></div>
+LIVE NETWORK
 </div>
-
-
-<!-- NETWORK INFO -->
+</div>
 
 <div class="info">
-
-  <div>NETWORK: SOLANA</div>
-  <div id="activity">ACTIVITY: HIGH</div>
-  <div id="nodes">NODES: 33</div>
-
+<div>NETWORK: SOLANA</div>
+<div id="activity">ACTIVITY: HIGH</div>
+<div id="nodes">NODES: 43</div>
 </div>
-
-
-<!-- EVENT FEED -->
 
 <div class="feed">
-
-  <div class="feed-title">
-    LIVE NETWORK
-  </div>
-
-  <div id="feedEvents"></div>
-
+<div class="feed-title">LIVE NETWORK</div>
+<div id="feedEvents"></div>
 </div>
-
-
-<!-- PANEL -->
 
 <div class="panel" id="panel">
-
-  <div class="panel-type" id="panelType">
-    OBJECT
-  </div>
-
-  <div class="panel-title" id="panelTitle">
-    -
-  </div>
-
-  <div class="panel-text" id="panelText">
-    -
-  </div>
-
+<div class="panel-type" id="panelType">OBJECT</div>
+<div class="panel-title" id="panelTitle">-</div>
+<div class="panel-text" id="panelText">-</div>
 </div>
-
 
 <script>
 
 /* =========================
-   NODE PANEL
+   PANEL
 ========================= */
 
-function openNode(type, title, text) {
+function openNode(type,title,text){
 
-  const panel =
-    document.getElementById("panel");
+const panel=document.getElementById("panel");
 
-  document.getElementById("panelType")
-    .textContent = type;
+document.getElementById("panelType").textContent=type;
+document.getElementById("panelTitle").textContent=title;
+document.getElementById("panelText").textContent=text;
 
-  document.getElementById("panelTitle")
-    .textContent = title;
-
-  document.getElementById("panelText")
-    .textContent = text;
-
-  panel.style.display = "block";
+panel.style.display="block";
 }
 
 
@@ -502,209 +395,155 @@ function openNode(type, title, text) {
    CAMERA
 ========================= */
 
-let cameraX = 0;
-let cameraY = 0;
-let zoom = 1;
+let cameraX=0;
+let cameraY=0;
+let zoom=1;
 
-let dragging = false;
+let dragging=false;
 
-let startX = 0;
-let startY = 0;
+let startX=0;
+let startY=0;
 
-let lastX = 0;
-let lastY = 0;
+let lastX=0;
+let lastY=0;
 
-function updateCamera() {
 
-  document.getElementById("space").style.transform =
-    `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+function updateCamera(){
+
+document.getElementById("space").style.transform=
+`translate(${cameraX}px,${cameraY}px) scale(${zoom})`;
+
 }
 
 
-/* MOUSE DRAG */
+document.addEventListener("mousedown",e=>{
 
-document.addEventListener("mousedown", (e) => {
+if(
+e.target.closest(".node")||
+e.target.closest(".dynamic-node")||
+e.target.closest(".panel")
+)return;
 
-  if (
-    e.target.closest(".node") ||
-    e.target.closest(".panel")
-  ) {
-    return;
-  }
+dragging=true;
 
-  dragging = true;
+startX=e.clientX;
+startY=e.clientY;
 
-  startX = e.clientX;
-  startY = e.clientY;
-
-  lastX = cameraX;
-  lastY = cameraY;
+lastX=cameraX;
+lastY=cameraY;
 
 });
 
 
-document.addEventListener("mousemove", (e) => {
+document.addEventListener("mousemove",e=>{
 
-  if (!dragging) return;
+if(!dragging)return;
 
-  cameraX =
-    lastX +
-    (e.clientX - startX);
+cameraX=lastX+(e.clientX-startX);
+cameraY=lastY+(e.clientY-startY);
 
-  cameraY =
-    lastY +
-    (e.clientY - startY);
-
-  updateCamera();
+updateCamera();
 
 });
 
 
-document.addEventListener("mouseup", () => {
-
-  dragging = false;
-
+document.addEventListener("mouseup",()=>{
+dragging=false;
 });
 
 
-/* MOUSE ZOOM */
+document.addEventListener("wheel",e=>{
 
-document.addEventListener("wheel", (e) => {
+e.preventDefault();
 
-  e.preventDefault();
+zoom+=e.deltaY*-0.001;
 
-  zoom += e.deltaY * -0.001;
+zoom=Math.min(Math.max(zoom,.65),2.5);
 
-  zoom = Math.min(
-    Math.max(zoom, .65),
-    2.5
-  );
+updateCamera();
 
-  updateCamera();
-
-}, { passive: false });
+},{passive:false});
 
 
-/* TOUCH */
-
-let touchStartX = 0;
-let touchStartY = 0;
-
-let initialDistance = null;
-let initialZoom = 1;
+let touchStartX=0;
+let touchStartY=0;
+let initialDistance=null;
+let initialZoom=1;
 
 
-document.addEventListener("touchstart", (e) => {
+document.addEventListener("touchstart",e=>{
 
-  if (e.touches.length === 1) {
+if(e.touches.length===1){
 
-    const touch = e.touches[0];
+const touch=e.touches[0];
 
-    if (touch.target.closest(".node")) {
-      return;
-    }
+if(
+touch.target.closest(".node")||
+touch.target.closest(".dynamic-node")
+)return;
 
-    dragging = true;
+dragging=true;
 
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
+touchStartX=touch.clientX;
+touchStartY=touch.clientY;
 
-    lastX = cameraX;
-    lastY = cameraY;
+lastX=cameraX;
+lastY=cameraY;
 
-  }
+}
 
+if(e.touches.length===2){
 
-  if (e.touches.length === 2) {
+dragging=false;
 
-    dragging = false;
+const dx=e.touches[0].clientX-e.touches[1].clientX;
+const dy=e.touches[0].clientY-e.touches[1].clientY;
 
-    const dx =
-      e.touches[0].clientX -
-      e.touches[1].clientX;
+initialDistance=Math.sqrt(dx*dx+dy*dy);
 
-    const dy =
-      e.touches[0].clientY -
-      e.touches[1].clientY;
+initialZoom=zoom;
 
-    initialDistance =
-      Math.sqrt(
-        dx * dx +
-        dy * dy
-      );
+}
 
-    initialZoom = zoom;
-
-  }
-
-}, { passive: false });
+},{passive:false});
 
 
-document.addEventListener("touchmove", (e) => {
+document.addEventListener("touchmove",e=>{
 
-  e.preventDefault();
+e.preventDefault();
 
+if(e.touches.length===1&&dragging){
 
-  if (
-    e.touches.length === 1 &&
-    dragging
-  ) {
+const touch=e.touches[0];
 
-    const touch = e.touches[0];
+cameraX=lastX+(touch.clientX-touchStartX);
+cameraY=lastY+(touch.clientY-touchStartY);
 
-    cameraX =
-      lastX +
-      (touch.clientX - touchStartX);
+updateCamera();
 
-    cameraY =
-      lastY +
-      (touch.clientY - touchStartY);
+}
 
-    updateCamera();
+if(e.touches.length===2&&initialDistance){
 
-  }
+const dx=e.touches[0].clientX-e.touches[1].clientX;
+const dy=e.touches[0].clientY-e.touches[1].clientY;
 
+const distance=Math.sqrt(dx*dx+dy*dy);
 
-  if (
-    e.touches.length === 2 &&
-    initialDistance
-  ) {
+zoom=initialZoom*(distance/initialDistance);
 
-    const dx =
-      e.touches[0].clientX -
-      e.touches[1].clientX;
+zoom=Math.min(Math.max(zoom,.65),2.5);
 
-    const dy =
-      e.touches[0].clientY -
-      e.touches[1].clientY;
+updateCamera();
 
-    const distance =
-      Math.sqrt(
-        dx * dx +
-        dy * dy
-      );
+}
 
-    zoom =
-      initialZoom *
-      (distance / initialDistance);
-
-    zoom = Math.min(
-      Math.max(zoom, .65),
-      2.5
-    );
-
-    updateCamera();
-
-  }
-
-}, { passive: false });
+},{passive:false});
 
 
-document.addEventListener("touchend", () => {
-
-  dragging = false;
-  initialDistance = null;
-
+document.addEventListener("touchend",()=>{
+dragging=false;
+initialDistance=null;
 });
 
 
@@ -712,139 +551,102 @@ document.addEventListener("touchend", () => {
    DYNAMIC WORLD
 ========================= */
 
-const dynamicWorld =
-  document.createElement("div");
+const dynamicWorld=document.createElement("div");
 
-dynamicWorld.id =
-  "dynamicWorld";
+dynamicWorld.id="dynamicWorld";
 
-Object.assign(
-  dynamicWorld.style,
-  {
-    position: "absolute",
-    inset: "0",
-    pointerEvents: "none"
-  }
-);
+Object.assign(dynamicWorld.style,{
+position:"absolute",
+inset:"0",
+pointerEvents:"none"
+});
 
-document
-  .getElementById("space")
-  .appendChild(dynamicWorld);
+document.getElementById("space").appendChild(dynamicWorld);
 
 
 /* =========================
    DATA
 ========================= */
 
-const wallets = [];
-const tokens = [];
-const transactions = [];
-const connections = [];
+const wallets=[];
+const tokens=[];
+const transactions=[];
+const connections=[];
 
 
-const walletNames = [
-  "7xK9...mP2",
-  "4QvA...8zL",
-  "9Hd3...kR1",
-  "2LmP...7Xa",
-  "8TfQ...3Ns",
-  "5ZaR...91K",
-  "6YuE...4Bd",
-  "3NpX...q72"
+const walletNames=[
+"7xK9...mP2",
+"4QvA...8zL",
+"9Hd3...kR1",
+"2LmP...7Xa",
+"8TfQ...3Ns",
+"5ZaR...91K",
+"6YuE...4Bd",
+"3NpX...q72"
 ];
 
 
-const tokenNames = [
-  "$SOL",
-  "$BONK",
-  "$WIF",
-  "$JUP",
-  "$RAY",
-  "$SHAME"
+const tokenNames=[
+"$SOL",
+"$BONK",
+"$WIF",
+"$JUP",
+"$RAY",
+"$SHAME"
 ];
 
 
 /* =========================
-   CREATE NODE
+   NODE CREATION
 ========================= */
 
-function createDynamicNode(
-  type,
-  x,
-  y,
-  name
-) {
+function createDynamicNode(type,x,y,name){
 
-  const node =
-    document.createElement("div");
+const node=document.createElement("div");
 
-  node.className =
-    `dynamic-node ${type}`;
+node.className=`dynamic-node ${type}`;
 
+const size=
+type==="wallet"
+?14+Math.random()*18
+:26+Math.random()*20;
 
-  const size =
-    type === "wallet"
-      ? 14 + Math.random() * 18
-      : 26 + Math.random() * 20;
+node.style.width=`${size}px`;
+node.style.height=`${size}px`;
 
+node.style.left=`${x}%`;
+node.style.top=`${y}%`;
 
-  node.style.width =
-    `${size}px`;
+node.dataset.name=name;
 
-  node.style.height =
-    `${size}px`;
+node.addEventListener("click",e=>{
 
-  node.style.left =
-    `${x}%`;
+e.stopPropagation();
 
-  node.style.top =
-    `${y}%`;
+openNode(
+type.toUpperCase(),
+name,
+type==="wallet"
+?`Wallet activity detected on Solana. Address: ${name}`
+:`Token activity detected on Solana. Asset: ${name}`
+);
 
+});
 
-  node.dataset.name =
-    name;
+dynamicWorld.appendChild(node);
 
+return{
 
-  node.addEventListener(
-    "click",
-    (e) => {
+element:node,
+x,
+y,
+type,
+name,
 
-      e.stopPropagation();
+vx:(Math.random()-.5)*.018,
+vy:(Math.random()-.5)*.018
 
-      openNode(
-        type.toUpperCase(),
-        name,
-        type === "wallet"
-          ? `Wallet activity detected on Solana. Address: ${name}`
-          : `Token activity detected on Solana. Asset: ${name}`
-      );
-
-    }
-  );
-
-
-  dynamicWorld.appendChild(node);
-
-
-  return {
-
-    element: node,
-
-    x,
-    y,
-
-    type,
-    name,
-
-    vx:
-      (Math.random() - .5)
-      * .018,
-
-    vy:
-      (Math.random() - .5)
-      * .018
-
-  };
+};
 
 }
 
@@ -853,31 +655,19 @@ function createDynamicNode(
    WALLETS
 ========================= */
 
-for (
-  let i = 0;
-  i < 28;
-  i++
-) {
+for(let i=0;i<28;i++){
 
-  const x =
-    5 + Math.random() * 90;
+const x=5+Math.random()*90;
+const y=8+Math.random()*84;
 
-  const y =
-    8 + Math.random() * 84;
-
-  const name =
-    walletNames[
-      i % walletNames.length
-    ];
-
-  wallets.push(
-    createDynamicNode(
-      "wallet",
-      x,
-      y,
-      name
-    )
-  );
+wallets.push(
+createDynamicNode(
+"wallet",
+x,
+y,
+walletNames[i%walletNames.length]
+)
+);
 
 }
 
@@ -886,31 +676,19 @@ for (
    TOKENS
 ========================= */
 
-for (
-  let i = 0;
-  i < 10;
-  i++
-) {
+for(let i=0;i<10;i++){
 
-  const x =
-    8 + Math.random() * 84;
+const x=8+Math.random()*84;
+const y=10+Math.random()*78;
 
-  const y =
-    10 + Math.random() * 78;
-
-  const name =
-    tokenNames[
-      i % tokenNames.length
-    ];
-
-  tokens.push(
-    createDynamicNode(
-      "token",
-      x,
-      y,
-      name
-    )
-  );
+tokens.push(
+createDynamicNode(
+"token",
+x,
+y,
+tokenNames[i%tokenNames.length]
+)
+);
 
 }
 
@@ -919,342 +697,301 @@ for (
    CONNECTIONS
 ========================= */
 
-function connect(a, b) {
+function connect(a,b){
 
-  connections.push({
-    a,
-    b
-  });
+connections.push({a,b});
 
 }
 
 
-wallets.forEach(
-  wallet => {
+wallets.forEach(wallet=>{
 
-    for (
-      let i = 0;
-      i < 2;
-      i++
-    ) {
+for(let i=0;i<2;i++){
 
-      const target =
-        wallets[
-          Math.floor(
-            Math.random()
-            * wallets.length
-          )
-        ];
+const target=
+wallets[
+Math.floor(Math.random()*wallets.length)
+];
 
-      if (
-        target !== wallet
-      ) {
+if(target!==wallet){
+connect(wallet,target);
+}
 
-        connect(
-          wallet,
-          target
-        );
+}
 
-      }
-
-    }
-
-  }
-);
+});
 
 
-tokens.forEach(
-  token => {
+tokens.forEach(token=>{
 
-    for (
-      let i = 0;
-      i < 4;
-      i++
-    ) {
+for(let i=0;i<4;i++){
 
-      const wallet =
-        wallets[
-          Math.floor(
-            Math.random()
-            * wallets.length
-          )
-        ];
+const wallet=
+wallets[
+Math.floor(Math.random()*wallets.length)
+];
 
-      connect(
-        token,
-        wallet
-      );
+connect(token,wallet);
 
-    }
+}
 
-  }
-);
+});
 
 
 /* =========================
-   CONNECTION CANVAS
+   CANVAS
 ========================= */
 
-const canvas =
-  document.getElementById(
-    "connectionLayer"
-  );
+const canvas=
+document.getElementById("connectionLayer");
 
-const ctx =
-  canvas.getContext("2d");
+const ctx=canvas.getContext("2d");
 
 
-function resizeCanvas() {
+function resizeCanvas(){
 
-  canvas.width =
-    window.innerWidth;
-
-  canvas.height =
-    window.innerHeight;
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
 }
 
-
 resizeCanvas();
 
-window.addEventListener(
-  "resize",
-  resizeCanvas
-);
+window.addEventListener("resize",resizeCanvas);
 
 
 /* =========================
    TRANSACTIONS
 ========================= */
 
-function createTransaction() {
+function createTransaction(){
 
-  if (
-    connections.length === 0
-  ) return;
+if(!connections.length)return;
 
+const connection=
+connections[
+Math.floor(Math.random()*connections.length)
+];
 
-  const connection =
-    connections[
-      Math.floor(
-        Math.random()
-        * connections.length
-      )
-    ];
+const tx=document.createElement("div");
 
+tx.className="dynamic-tx";
 
-  const tx =
-    document.createElement("div");
+dynamicWorld.appendChild(tx);
 
-  tx.className =
-    "dynamic-tx";
+transactions.push({
 
+element:tx,
+connection,
+progress:0
 
-  dynamicWorld.appendChild(tx);
-
-
-  transactions.push({
-
-    element: tx,
-
-    connection,
-
-    progress: 0
-
-  });
+});
 
 }
 
 
-for (
-  let i = 0;
-  i < 10;
-  i++
-) {
+for(let i=0;i<10;i++){
+createTransaction();
+}
 
-  createTransaction();
+
+setInterval(createTransaction,700);
+
+
+/* =========================
+   CLUSTERS
+========================= */
+
+const clusterLayer=
+document.createElement("div");
+
+clusterLayer.id="clusterLayer";
+
+Object.assign(clusterLayer.style,{
+position:"absolute",
+inset:"0",
+pointerEvents:"none",
+zIndex:"2"
+});
+
+dynamicWorld.prepend(clusterLayer);
+
+
+const clusters=[
+{
+name:"DEFI",
+x:25,
+y:34,
+size:260,
+className:""
+},
+{
+name:"MEME",
+x:72,
+y:32,
+size:310,
+className:"green"
+},
+{
+name:"TRADING",
+x:48,
+y:72,
+size:280,
+className:"orange"
+},
+{
+name:"NFT",
+x:78,
+y:73,
+size:220,
+className:"blue"
+}
+];
+
+
+clusters.forEach(cluster=>{
+
+const zone=document.createElement("div");
+
+zone.className=
+`activity-cluster ${cluster.className}`;
+
+zone.style.left=`${cluster.x}%`;
+zone.style.top=`${cluster.y}%`;
+
+zone.style.width=`${cluster.size}px`;
+zone.style.height=`${cluster.size}px`;
+
+
+const label=document.createElement("div");
+
+label.className="cluster-label";
+label.textContent=cluster.name;
+
+zone.appendChild(label);
+
+clusterLayer.appendChild(zone);
+
+});
+
+
+/* =========================
+   PULSES
+========================= */
+
+function createPulse(){
+
+const pulse=document.createElement("div");
+
+pulse.className="network-pulse";
+
+pulse.style.left=
+`${10+Math.random()*80}%`;
+
+pulse.style.top=
+`${10+Math.random()*80}%`;
+
+dynamicWorld.appendChild(pulse);
+
+setTimeout(()=>{
+pulse.remove();
+},1400);
 
 }
 
 
-setInterval(
-  createTransaction,
-  700
-);
+setInterval(createPulse,850);
 
 
 /* =========================
    ANIMATION
 ========================= */
 
-function animateWorld() {
+function animateWorld(){
+
+[
+...wallets,
+...tokens
+].forEach(node=>{
+
+node.x+=node.vx;
+node.y+=node.vy;
+
+if(node.x<3||node.x>97){
+node.vx*=-1;
+}
+
+if(node.y<5||node.y>95){
+node.vy*=-1;
+}
+
+node.element.style.left=`${node.x}%`;
+node.element.style.top=`${node.y}%`;
+
+});
 
 
-  /* MOVE NODES */
-
-  [
-    ...wallets,
-    ...tokens
-  ].forEach(node => {
-
-    node.x += node.vx;
-    node.y += node.vy;
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
 
 
-    if (
-      node.x < 3 ||
-      node.x > 97
-    ) {
+connections.forEach(connection=>{
 
-      node.vx *= -1;
+const a=connection.a;
+const b=connection.b;
 
-    }
+const ax=a.x/100*canvas.width;
+const ay=a.y/100*canvas.height;
 
+const bx=b.x/100*canvas.width;
+const by=b.y/100*canvas.height;
 
-    if (
-      node.y < 5 ||
-      node.y > 95
-    ) {
+ctx.beginPath();
 
-      node.vy *= -1;
+ctx.moveTo(ax,ay);
+ctx.lineTo(bx,by);
 
-    }
+ctx.strokeStyle="rgba(120,130,160,.12)";
+ctx.lineWidth=1;
 
+ctx.stroke();
 
-    node.element.style.left =
-      `${node.x}%`;
-
-    node.element.style.top =
-      `${node.y}%`;
-
-  });
+});
 
 
-  /* DRAW LINES */
+transactions.forEach((tx,index)=>{
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+tx.progress+=.009;
 
+if(tx.progress>=1){
 
-  connections.forEach(
-    connection => {
+tx.element.remove();
 
-      const a =
-        connection.a;
+transactions.splice(index,1);
 
-      const b =
-        connection.b;
-
-
-      const ax =
-        a.x / 100
-        * canvas.width;
-
-      const ay =
-        a.y / 100
-        * canvas.height;
-
-
-      const bx =
-        b.x / 100
-        * canvas.width;
-
-      const by =
-        b.y / 100
-        * canvas.height;
-
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        ax,
-        ay
-      );
-
-      ctx.lineTo(
-        bx,
-        by
-      );
-
-
-      ctx.strokeStyle =
-        "rgba(120,130,160,.12)";
-
-      ctx.lineWidth = 1;
-
-      ctx.stroke();
-
-    }
-  );
-
-
-  /* MOVE TX */
-
-  transactions.forEach(
-    (tx, index) => {
-
-      tx.progress += .009;
-
-
-      if (
-        tx.progress >= 1
-      ) {
-
-        tx.element.remove();
-
-        transactions.splice(
-          index,
-          1
-        );
-
-        return;
-
-      }
-
-
-      const a =
-        tx.connection.a;
-
-      const b =
-        tx.connection.b;
-
-
-      const x =
-        a.x +
-        (
-          b.x - a.x
-        )
-        * tx.progress;
-
-
-      const y =
-        a.y +
-        (
-          b.y - a.y
-        )
-        * tx.progress;
-
-
-      tx.element.style.left =
-        `${x}%`;
-
-      tx.element.style.top =
-        `${y}%`;
-
-    }
-  );
-
-
-  requestAnimationFrame(
-    animateWorld
-  );
+return;
 
 }
 
+const a=tx.connection.a;
+const b=tx.connection.b;
+
+const x=a.x+(b.x-a.x)*tx.progress;
+const y=a.y+(b.y-a.y)*tx.progress;
+
+tx.element.style.left=`${x}%`;
+tx.element.style.top=`${y}%`;
+
+});
+
+
+requestAnimationFrame(animateWorld);
+
+}
 
 animateWorld();
 
@@ -1263,457 +1000,81 @@ animateWorld();
    LIVE FEED
 ========================= */
 
-const feed =
-  document.getElementById(
-    "feedEvents"
-  );
+const feed=
+document.getElementById("feedEvents");
 
 
-function addEvent() {
+function addEvent(){
 
-  const names = [
-    "wallet activity",
-    "token transfer",
-    "new transaction",
-    "network interaction",
-    "SOL movement"
-  ];
-
-
-  const event =
-    document.createElement("div");
-
-  event.className =
-    "event";
+const names=[
+"wallet activity",
+"token transfer",
+"new transaction",
+"network interaction",
+"SOL movement"
+];
 
 
-  event.innerHTML =
-    `<span>●</span> ${
-      names[
-        Math.floor(
-          Math.random()
-          * names.length
-        )
-      ]
-    }`;
+const event=document.createElement("div");
+
+event.className="event";
+
+event.innerHTML=
+`<span>●</span> ${
+names[
+Math.floor(Math.random()*names.length)
+]
+}`;
 
 
-  feed.prepend(event);
+feed.prepend(event);
 
 
-  while (
-    feed.children.length > 5
-  ) {
-
-    feed.lastChild.remove();
-
-  }
+while(feed.children.length>5){
+feed.lastChild.remove();
+}
 
 }
 
 
-for (
-  let i = 0;
-  i < 5;
-  i++
-) {
-
-  addEvent();
-
+for(let i=0;i<5;i++){
+addEvent();
 }
 
 
-setInterval(
-  addEvent,
-  1600
-);
+setInterval(addEvent,1600);
 
 
 /* =========================
    NETWORK COUNTER
 ========================= */
 
-setInterval(() => {
+setInterval(()=>{
 
-  const activity =
-    document.getElementById(
-      "activity"
-    );
-
-  const nodes =
-    document.getElementById(
-      "nodes"
-    );
-
-
-  const activities = [
-    "HIGH",
-    "VERY HIGH",
-    "HIGH",
-    "ACTIVE"
-  ];
-
-
-  activity.textContent =
-    `ACTIVITY: ${
-      activities[
-        Math.floor(
-          Math.random()
-          * activities.length
-        )
-      ]
-    }`;
-
-
-  nodes.textContent =
-    `NODES: ${
-      33 +
-      Math.floor(
-        Math.random() * 20
-      )
-    }`;
-
-}, 1800);
-
-</script>
-/* ================================
-   SOLANA WORLD — ACTIVITY CLUSTERS
-================================ */
-
-const clusterLayer = document.createElement("div");
-
-clusterLayer.id = "clusterLayer";
-
-Object.assign(clusterLayer.style, {
-  position: "absolute",
-  inset: "0",
-  pointerEvents: "none",
-  zIndex: "2"
-});
-
-dynamicWorld.prepend(clusterLayer);
-
-
-/* ---------- CLUSTER DATA ---------- */
-
-const clusters = [
-  {
-    name: "DEFI",
-    x: 25,
-    y: 34,
-    size: 260
-  },
-  {
-    name: "MEME",
-    x: 72,
-    y: 32,
-    size: 310
-  },
-  {
-    name: "TRADING",
-    x: 48,
-    y: 72,
-    size: 280
-  },
-  {
-    name: "NFT",
-    x: 78,
-    y: 73,
-    size: 220
-  }
+const activities=[
+"HIGH",
+"VERY HIGH",
+"HIGH",
+"ACTIVE"
 ];
 
 
-/* ---------- CREATE CLUSTERS ---------- */
+document.getElementById("activity").textContent=
+`ACTIVITY: ${
+activities[
+Math.floor(Math.random()*activities.length)
+]
+}`;
 
-clusters.forEach(cluster => {
 
-  const zone =
-    document.createElement("div");
+document.getElementById("nodes").textContent=
+`NODES: ${
+33+Math.floor(Math.random()*20)
+}`;
 
-  zone.className =
-    "activity-cluster";
+},1800);
 
-  zone.style.left =
-    `${cluster.x}%`;
+</script>
 
-  zone.style.top =
-    `${cluster.y}%`;
-
-  zone.style.width =
-    `${cluster.size}px`;
-
-  zone.style.height =
-    `${cluster.size}px`;
-
-
-  const label =
-    document.createElement("div");
-
-  label.className =
-    "cluster-label";
-
-  label.textContent =
-    cluster.name;
-
-
-  zone.appendChild(label);
-
-  clusterLayer.appendChild(zone);
-
-});
-
-
-/* ---------- CLUSTER STYLE ---------- */
-
-const clusterStyle =
-  document.createElement("style");
-
-clusterStyle.textContent = `
-
-.activity-cluster {
-
-  position: absolute;
-
-  transform:
-    translate(-50%, -50%);
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(105,80,255,.13) 0%,
-      rgba(105,80,255,.06) 38%,
-      rgba(105,80,255,.025) 62%,
-      transparent 72%
-    );
-
-  border:
-    1px solid
-    rgba(120,100,255,.08);
-
-  box-shadow:
-    0 0 60px
-    rgba(105,80,255,.08);
-
-  animation:
-    clusterPulse 4s
-    ease-in-out
-    infinite;
-
-}
-
-
-.activity-cluster:nth-child(2) {
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(30,210,135,.13) 0%,
-      rgba(30,210,135,.05) 42%,
-      transparent 72%
-    );
-
-  border-color:
-    rgba(30,210,135,.08);
-
-}
-
-
-.activity-cluster:nth-child(3) {
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(255,138,0,.13) 0%,
-      rgba(255,138,0,.05) 42%,
-      transparent 72%
-    );
-
-  border-color:
-    rgba(255,138,0,.08);
-
-}
-
-
-.activity-cluster:nth-child(4) {
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(100,180,255,.12) 0%,
-      rgba(100,180,255,.04) 42%,
-      transparent 72%
-    );
-
-}
-
-
-.cluster-label {
-
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  transform:
-    translate(-50%, -50%);
-
-  font-size: 8px;
-
-  letter-spacing: 3px;
-
-  color:
-    rgba(170,175,200,.32);
-
-  white-space: nowrap;
-
-}
-
-
-@keyframes clusterPulse {
-
-  0% {
-    transform:
-      translate(-50%, -50%)
-      scale(.96);
-
-    opacity: .65;
-  }
-
-  50% {
-    transform:
-      translate(-50%, -50%)
-      scale(1.04);
-
-    opacity: 1;
-  }
-
-  100% {
-    transform:
-      translate(-50%, -50%)
-      scale(.96);
-
-    opacity: .65;
-  }
-
-}
-
-`;
-
-document.head.appendChild(
-  clusterStyle
-);
-
-
-/* ================================
-   ACTIVITY PULSES
-================================ */
-
-function createPulse() {
-
-  const pulse =
-    document.createElement("div");
-
-  pulse.className =
-    "network-pulse";
-
-
-  const x =
-    10 + Math.random() * 80;
-
-  const y =
-    10 + Math.random() * 80;
-
-
-  pulse.style.left =
-    `${x}%`;
-
-  pulse.style.top =
-    `${y}%`;
-
-
-  dynamicWorld.appendChild(
-    pulse
-  );
-
-
-  setTimeout(() => {
-
-    pulse.remove();
-
-  }, 1400);
-
-}
-
-
-const pulseStyle =
-  document.createElement("style");
-
-pulseStyle.textContent = `
-
-.network-pulse {
-
-  position: absolute;
-
-  width: 5px;
-  height: 5px;
-
-  border-radius: 50%;
-
-  background: white;
-
-  box-shadow:
-    0 0 8px white,
-    0 0 18px rgba(255,255,255,.8);
-
-  pointer-events: none;
-
-  z-index: 40;
-
-  animation:
-    pulseExpand 1.4s
-    ease-out
-    forwards;
-
-}
-
-
-@keyframes pulseExpand {
-
-  0% {
-
-    transform:
-      translate(-50%, -50%)
-      scale(.4);
-
-    opacity: 1;
-
-  }
-
-  100% {
-
-    transform:
-      translate(-50%, -50%)
-      scale(7);
-
-    opacity: 0;
-
-  }
-
-}
-
-`;
-
-document.head.appendChild(
-  pulseStyle
-);
-
-
-setInterval(
-  createPulse,
-  850
-);
 </body>
 </html>
