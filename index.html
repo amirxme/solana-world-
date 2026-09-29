@@ -2,309 +2,333 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Solana World</title>
 
 <style>
+
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
-html, body {
+html,
+body {
+  margin: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #030305;
-  color: #fff;
+  background: #03040a;
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
 }
+
+body {
+  user-select: none;
+  touch-action: none;
+}
+
+/* WORLD */
 
 #world {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(85, 70, 160, 0.13), transparent 35%),
-    radial-gradient(circle at 20% 20%, rgba(40, 130, 120, 0.08), transparent 30%),
-    #030305;
 }
 
-/* STAR FIELD */
+#space {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+}
+
+/* STARS */
 
 .stars {
   position: absolute;
-  inset: 0;
+  inset: -20%;
   background-image:
     radial-gradient(circle, rgba(255,255,255,.7) 1px, transparent 1px),
-    radial-gradient(circle, rgba(150,140,255,.4) 1px, transparent 1px);
+    radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px);
   background-size: 90px 90px, 150px 150px;
-  background-position: 10px 20px, 60px 80px;
-  opacity: .28;
-  animation: drift 35s linear infinite;
-}
-
-@keyframes drift {
-  from { transform: translate(0,0); }
-  to { transform: translate(-90px,-90px); }
+  background-position: 10px 20px, 50px 80px;
+  opacity: .35;
 }
 
 /* HEADER */
 
 .header {
-  position: absolute;
+  position: fixed;
   top: 24px;
-  left: 24px;
-  z-index: 20;
+  left: 28px;
+  z-index: 100;
+  pointer-events: none;
 }
 
 .logo {
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   letter-spacing: 4px;
 }
 
 .subtitle {
-  margin-top: 7px;
-  color: #777;
-  font-size: 11px;
-  letter-spacing: 1px;
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #777b8d;
 }
 
 .live {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  z-index: 20;
-  display: flex;
+  margin-top: 14px;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: #aaa;
-  font-size: 11px;
+  gap: 7px;
+  font-size: 10px;
   letter-spacing: 2px;
+  color: #73ffb2;
 }
 
 .live-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #55d6a2;
-  box-shadow: 0 0 12px rgba(85,214,162,.9);
-  animation: pulse 1.4s infinite;
+  background: #73ffb2;
+  box-shadow: 0 0 12px #73ffb2;
 }
 
-@keyframes pulse {
-  50% { opacity: .3; }
-}
+/* INFO */
 
-/* WORLD */
-
-#space {
-  position: absolute;
-  inset: 0;
-  transform-origin: center center;
-  transition: transform .15s ease-out;
-}
-
-.node {
-  position: absolute;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  cursor: pointer;
-  z-index: 5;
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.node:hover {
-  transform: scale(1.25);
-}
-
-.wallet {
-  background: radial-gradient(circle at 35% 30%, #927cff, #34227c);
-  box-shadow:
-    0 0 20px rgba(112,83,255,.65),
-    0 0 60px rgba(112,83,255,.18);
-}
-
-.token {
-  background: radial-gradient(circle at 35% 30%, #63e4ce, #12675c);
-  box-shadow:
-    0 0 20px rgba(70,220,190,.55),
-    0 0 60px rgba(70,220,190,.15);
-}
-
-.tx {
-  width: 28px;
-  height: 28px;
-  background: #d59a45;
-  box-shadow:
-    0 0 18px rgba(213,154,69,.8);
-  animation: txPulse 1.5s infinite;
-}
-
-@keyframes txPulse {
-  50% { transform: scale(1.25); }
+.info {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 100;
+  text-align: right;
+  color: #777b8d;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  line-height: 1.8;
+  pointer-events: none;
 }
 
 /* CONNECTIONS */
 
-.connection {
+#connectionLayer {
   position: absolute;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(130,110,255,0),
-    rgba(130,110,255,.35),
-    rgba(80,220,190,.25),
-    rgba(130,110,255,0)
-  );
-  transform-origin: left center;
-  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
-/* FLYING TRANSACTIONS */
+/* NODES */
 
-.particle {
+.node {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #d9a34d;
-  box-shadow: 0 0 12px #d9a34d;
-  z-index: 4;
-  pointer-events: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.wallet {
+  width: 25px;
+  height: 25px;
+  background:
+    radial-gradient(
+      circle,
+      #ddd5ff 0%,
+      #8166ff 35%,
+      #3b278c 70%,
+      transparent 72%
+    );
+  box-shadow:
+    0 0 12px #7658ff,
+    0 0 32px rgba(118,88,255,.45);
+}
+
+.token {
+  width: 39px;
+  height: 39px;
+  background:
+    radial-gradient(
+      circle,
+      #d0ffe8 0%,
+      #21d486 35%,
+      #08754a 70%,
+      transparent 72%
+    );
+  box-shadow:
+    0 0 15px #21d486,
+    0 0 38px rgba(33,212,134,.45);
+}
+
+.tx {
+  width: 18px;
+  height: 18px;
+  background: #ff8a00;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: bold;
+  box-shadow:
+    0 0 12px #ff8a00,
+    0 0 30px rgba(255,138,0,.6);
+}
+
+.node:hover {
+  filter: brightness(1.7);
+}
+
+/* PANEL */
+
+.panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 280px;
+  padding: 18px;
+  z-index: 200;
+
+  background: rgba(7,9,18,.88);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 20px 70px rgba(0,0,0,.45);
+
+  display: none;
+}
+
+.panel-type {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #777b8d;
+  margin-bottom: 7px;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 9px;
+}
+
+.panel-text {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #969aaa;
 }
 
 /* EVENT FEED */
 
 .feed {
-  position: absolute;
+  position: fixed;
   left: 24px;
   bottom: 24px;
-  width: 290px;
-  z-index: 20;
+  width: 250px;
+  z-index: 100;
   pointer-events: none;
 }
 
 .feed-title {
-  color: #666;
   font-size: 9px;
   letter-spacing: 2px;
-  margin-bottom: 9px;
+  color: #666b7d;
+  margin-bottom: 8px;
 }
 
 .event {
-  padding: 7px 10px;
+  font-size: 9px;
+  color: #777b8d;
   margin-top: 5px;
-  background: rgba(8,8,13,.72);
-  border-left: 2px solid rgba(130,110,255,.5);
-  color: #aaa;
-  font-size: 10px;
-  backdrop-filter: blur(8px);
-  animation: eventIn .35s ease;
 }
 
-@keyframes eventIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.event span {
+  color: #bfc3d2;
 }
 
-/* INFO PANEL */
+/* DYNAMIC WORLD */
 
-.panel {
+.dynamic-node {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
-  width: 270px;
-  padding: 18px;
-  z-index: 30;
-  display: none;
-  background: rgba(8,8,14,.94);
-  border: 1px solid #242432;
-  border-radius: 14px;
-  backdrop-filter: blur(15px);
-}
-
-.panel.active {
-  display: block;
-}
-
-.panel-label {
-  color: #666;
-  font-size: 9px;
-  letter-spacing: 2px;
-  margin-bottom: 7px;
-}
-
-.panel h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.panel p {
-  color: #888;
-  font-size: 11px;
-  line-height: 1.7;
-}
-
-.close {
-  position: absolute;
-  right: 13px;
-  top: 11px;
-  color: #666;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: auto;
   cursor: pointer;
-  font-size: 16px;
+  z-index: 20;
+  transition: filter .2s;
 }
 
-/* BOTTOM STATUS */
+.dynamic-node.wallet {
+  background:
+    radial-gradient(
+      circle,
+      #ddd5ff 0%,
+      #7658ff 35%,
+      #392182 70%,
+      transparent 72%
+    );
 
-.status {
+  box-shadow:
+    0 0 12px #7658ff,
+    0 0 28px rgba(118,88,255,.45);
+}
+
+.dynamic-node.token {
+  background:
+    radial-gradient(
+      circle,
+      #d0ffe8 0%,
+      #21d486 35%,
+      #08754a 70%,
+      transparent 72%
+    );
+
+  box-shadow:
+    0 0 15px #21d486,
+    0 0 35px rgba(33,212,134,.5);
+}
+
+.dynamic-node:hover {
+  filter: brightness(1.8);
+}
+
+.dynamic-tx {
   position: absolute;
-  right: 25px;
-  top: 58px;
-  color: #555;
-  font-size: 9px;
-  letter-spacing: 1px;
-  z-index: 20;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff8a00;
+  box-shadow:
+    0 0 10px #ff8a00,
+    0 0 25px #ff8a00;
+  pointer-events: none;
+  z-index: 50;
 }
 
 /* MOBILE */
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
   .header {
     top: 18px;
     left: 18px;
   }
 
-  .logo {
-    font-size: 16px;
-  }
-
-  .live {
-    top: 20px;
+  .info {
+    top: 18px;
     right: 18px;
   }
 
   .feed {
     left: 18px;
     bottom: 18px;
-    width: 220px;
+    width: 190px;
   }
 
   .panel {
@@ -314,10 +338,8 @@ html, body {
     width: auto;
   }
 
-  .status {
-    display: none;
-  }
 }
+
 </style>
 </head>
 
@@ -325,251 +347,188 @@ html, body {
 
 <div id="world">
 
-  <div class="stars"></div>
+  <div id="space">
 
-  <div class="header">
-    <div class="logo">SOLANA WORLD</div>
-    <div class="subtitle">THE BLOCKCHAIN, ALIVE.</div>
+    <div class="stars"></div>
+
+    <canvas id="connectionLayer"></canvas>
+
+    <!-- ORIGINAL NODES -->
+
+    <div
+      class="node wallet"
+      style="left:27%;top:35%;"
+      onclick="openNode(
+        'WALLET',
+        '7xK9...mP2',
+        'Active Solana wallet interacting with the network.'
+      )">
+    </div>
+
+    <div
+      class="node wallet"
+      style="left:69%;top:31%;"
+      onclick="openNode(
+        'WALLET',
+        '4QvA...8zL',
+        'Active wallet connected to multiple assets.'
+      )">
+    </div>
+
+    <div
+      class="node token"
+      style="left:43%;top:60%;"
+      onclick="openNode(
+        'TOKEN',
+        '$SOL',
+        'Native Solana asset.'
+      )">
+    </div>
+
+    <div
+      class="node token"
+      style="left:73%;top:67%;"
+      onclick="openNode(
+        'TOKEN',
+        '$WIF',
+        'Solana ecosystem token.'
+      )">
+    </div>
+
+    <div
+      class="node tx"
+      style="left:53%;top:51%;"
+      onclick="openNode(
+        'TRANSACTION',
+        'TRANSACTION',
+        'A simulated transaction moving through the network.'
+      )">
+      ⚡ TX
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+  <div class="logo">
+    SOLANA WORLD
+  </div>
+
+  <div class="subtitle">
+    THE BLOCKCHAIN, ALIVE.
   </div>
 
   <div class="live">
-    <span class="live-dot"></span>
-    LIVE
-  </div>
-
-  <div class="status">
-    SIMULATED NETWORK
-  </div>
-
-  <div id="space">
-
-    <!-- CONNECTIONS -->
-
-    <div class="connection"
-      style="left:22%; top:38%; width:31%; transform:rotate(-18deg);">
-    </div>
-
-    <div class="connection"
-      style="left:52%; top:30%; width:25%; transform:rotate(42deg);">
-    </div>
-
-    <div class="connection"
-      style="left:35%; top:65%; width:20%; transform:rotate(-38deg);">
-    </div>
-
-    <div class="connection"
-      style="left:53%; top:53%; width:24%; transform:rotate(5deg);">
-    </div>
-
-    <!-- NODES -->
-
-    <div class="node wallet"
-      style="left:18%; top:35%;"
-      onclick="openNode('WALLET #01','Wallet','An active Solana wallet. In the live version this object will represent a real public address.')">
-      WALLET
-    </div>
-
-    <div class="node token"
-      style="left:49%; top:25%;"
-      onclick="openNode('$TOKEN','TOKEN','A token existing somewhere inside the Solana ecosystem.')">
-      $TOKEN
-    </div>
-
-    <div class="node wallet"
-      style="left:72%; top:50%;"
-      onclick="openNode('WALLET #02','WALLET','Another wallet interacting with the network.')">
-      WALLET
-    </div>
-
-    <div class="node token"
-      style="left:32%; top:63%;"
-      onclick="openNode('$MEME','TOKEN','A simulated meme token. Real blockchain data will replace this later.')">
-      $MEME
-    </div>
-
-   <div class="node tx"
-  style="left:53%; top:51%;"
-  onclick="openNode('TRANSACTION','TRANSACTION','A simulated transaction moving through the network.')">
-  ⚡ TX
-</div>
-
-  </div>
-
-  <div class="feed">
-
-    <div class="feed-title">
-      LIVE NETWORK
-    </div>
-
-    <div id="events"></div>
-
-  </div>
-
-  <div class="panel" id="panel">
-
-    <div class="close" onclick="closePanel()">×</div>
-
-    <div class="panel-label" id="panelType"></div>
-
-    <h2 id="panelTitle"></h2>
-
-    <p id="panelText"></p>
-
+    <div class="live-dot"></div>
+    LIVE NETWORK
   </div>
 
 </div>
+
+
+<!-- NETWORK INFO -->
+
+<div class="info">
+
+  <div>NETWORK: SOLANA</div>
+  <div id="activity">ACTIVITY: HIGH</div>
+  <div id="nodes">NODES: 33</div>
+
+</div>
+
+
+<!-- EVENT FEED -->
+
+<div class="feed">
+
+  <div class="feed-title">
+    LIVE NETWORK
+  </div>
+
+  <div id="feedEvents"></div>
+
+</div>
+
+
+<!-- PANEL -->
+
+<div class="panel" id="panel">
+
+  <div class="panel-type" id="panelType">
+    OBJECT
+  </div>
+
+  <div class="panel-title" id="panelTitle">
+    -
+  </div>
+
+  <div class="panel-text" id="panelText">
+    -
+  </div>
+
+</div>
+
 
 <script>
 
-const space = document.getElementById("space");
-const events = document.getElementById("events");
+/* =========================
+   NODE PANEL
+========================= */
 
-function openNode(title, type, description) {
+function openNode(type, title, text) {
 
-  document.getElementById("panel").classList.add("active");
+  const panel =
+    document.getElementById("panel");
 
-  document.getElementById("panelType").textContent = type;
+  document.getElementById("panelType")
+    .textContent = type;
 
-  document.getElementById("panelTitle").textContent = title;
+  document.getElementById("panelTitle")
+    .textContent = title;
 
-  document.getElementById("panelText").textContent = description;
+  document.getElementById("panelText")
+    .textContent = text;
+
+  panel.style.display = "block";
 }
 
-function closePanel() {
-  document.getElementById("panel").classList.remove("active");
-}
 
-/* RANDOM EVENTS */
-
-const messages = [
-  "New wallet connected",
-  "Token interaction detected",
-  "Large transaction observed",
-  "Wallet moved SOL",
-  "New token activity",
-  "Swap detected",
-  "Network activity increased",
-  "New address discovered"
-];
-
-function addEvent() {
-
-  const event = document.createElement("div");
-
-  event.className = "event";
-
-  event.textContent =
-    "● " + messages[Math.floor(Math.random() * messages.length)];
-
-  events.prepend(event);
-
-  if (events.children.length > 4) {
-    events.removeChild(events.lastChild);
-  }
-}
-
-setInterval(addEvent, 2600);
-
-addEvent();
-addEvent();
-
-/* FLYING PARTICLE */
-
-function createParticle() {
-
-  const particle = document.createElement("div");
-
-  particle.className = "particle";
-
-  const startX = 20 + Math.random() * 50;
-
-  const startY = 30 + Math.random() * 35;
-
-  const endX = 35 + Math.random() * 40;
-
-  const endY = 25 + Math.random() * 45;
-
-  particle.style.left = startX + "%";
-
-  particle.style.top = startY + "%";
-
-  space.appendChild(particle);
-
-  const duration = 900 + Math.random() * 900;
-
-  const start = performance.now();
-
-  function animate(time) {
-
-    const progress =
-      Math.min((time - start) / duration, 1);
-
-    particle.style.left =
-      (startX + (endX - startX) * progress) + "%";
-
-    particle.style.top =
-      (startY + (endY - startY) * progress) + "%";
-
-    particle.style.opacity =
-      1 - progress;
-
-    if (progress < 1) {
-
-      requestAnimationFrame(animate);
-
-    } else {
-
-      particle.remove();
-
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
-setInterval(createParticle, 1100);
-
-/* SUBTLE WORLD MOVEMENT */
-
-let offsetX = 0;
-let offsetY = 0;
-
-document.addEventListener("mousemove", (e) => {
-
-  const x =
-    (e.clientX / window.innerWidth - .5) * 8;
-
-  const y =
-    (e.clientY / window.innerHeight - .5) * 8;
-
-  space.style.transform =
-    `translate(${x}px, ${y}px)`;
-
-});
-
-</script>
-/* CAMERA CONTROLS */
+/* =========================
+   CAMERA
+========================= */
 
 let cameraX = 0;
 let cameraY = 0;
 let zoom = 1;
 
 let dragging = false;
+
 let startX = 0;
 let startY = 0;
+
 let lastX = 0;
 let lastY = 0;
 
 function updateCamera() {
-  space.style.transform =
+
+  document.getElementById("space").style.transform =
     `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
 }
+
 
 /* MOUSE DRAG */
 
 document.addEventListener("mousedown", (e) => {
 
-  if (e.target.closest(".node") || e.target.closest(".panel")) {
+  if (
+    e.target.closest(".node") ||
+    e.target.closest(".panel")
+  ) {
     return;
   }
 
@@ -580,21 +539,33 @@ document.addEventListener("mousedown", (e) => {
 
   lastX = cameraX;
   lastY = cameraY;
+
 });
+
 
 document.addEventListener("mousemove", (e) => {
 
   if (!dragging) return;
 
-  cameraX = lastX + (e.clientX - startX);
-  cameraY = lastY + (e.clientY - startY);
+  cameraX =
+    lastX +
+    (e.clientX - startX);
+
+  cameraY =
+    lastY +
+    (e.clientY - startY);
 
   updateCamera();
+
 });
 
+
 document.addEventListener("mouseup", () => {
+
   dragging = false;
+
 });
+
 
 /* MOUSE ZOOM */
 
@@ -605,7 +576,7 @@ document.addEventListener("wheel", (e) => {
   zoom += e.deltaY * -0.001;
 
   zoom = Math.min(
-    Math.max(zoom, 0.65),
+    Math.max(zoom, .65),
     2.5
   );
 
@@ -613,12 +584,15 @@ document.addEventListener("wheel", (e) => {
 
 }, { passive: false });
 
-/* TOUCH DRAG + PINCH ZOOM */
+
+/* TOUCH */
 
 let touchStartX = 0;
 let touchStartY = 0;
+
 let initialDistance = null;
 let initialZoom = 1;
+
 
 document.addEventListener("touchstart", (e) => {
 
@@ -637,7 +611,9 @@ document.addEventListener("touchstart", (e) => {
 
     lastX = cameraX;
     lastY = cameraY;
+
   }
+
 
   if (e.touches.length === 2) {
 
@@ -652,31 +628,47 @@ document.addEventListener("touchstart", (e) => {
       e.touches[1].clientY;
 
     initialDistance =
-      Math.sqrt(dx * dx + dy * dy);
+      Math.sqrt(
+        dx * dx +
+        dy * dy
+      );
 
     initialZoom = zoom;
+
   }
 
 }, { passive: false });
+
 
 document.addEventListener("touchmove", (e) => {
 
   e.preventDefault();
 
-  if (e.touches.length === 1 && dragging) {
+
+  if (
+    e.touches.length === 1 &&
+    dragging
+  ) {
 
     const touch = e.touches[0];
 
     cameraX =
-      lastX + (touch.clientX - touchStartX);
+      lastX +
+      (touch.clientX - touchStartX);
 
     cameraY =
-      lastY + (touch.clientY - touchStartY);
+      lastY +
+      (touch.clientY - touchStartY);
 
     updateCamera();
+
   }
 
-  if (e.touches.length === 2 && initialDistance) {
+
+  if (
+    e.touches.length === 2 &&
+    initialDistance
+  ) {
 
     const dx =
       e.touches[0].clientX -
@@ -687,20 +679,26 @@ document.addEventListener("touchmove", (e) => {
       e.touches[1].clientY;
 
     const distance =
-      Math.sqrt(dx * dx + dy * dy);
+      Math.sqrt(
+        dx * dx +
+        dy * dy
+      );
 
     zoom =
-      initialZoom * (distance / initialDistance);
+      initialZoom *
+      (distance / initialDistance);
 
     zoom = Math.min(
-      Math.max(zoom, 0.65),
+      Math.max(zoom, .65),
       2.5
     );
 
     updateCamera();
+
   }
 
 }, { passive: false });
+
 
 document.addEventListener("touchend", () => {
 
@@ -708,27 +706,41 @@ document.addEventListener("touchend", () => {
   initialDistance = null;
 
 });
-/* ================================
-   SOLANA WORLD — DYNAMIC WORLD
-================================ */
-
-const dynamicWorld = document.createElement("div");
-dynamicWorld.id = "dynamicWorld";
-
-Object.assign(dynamicWorld.style, {
-  position: "absolute",
-  inset: "0",
-  pointerEvents: "none"
-});
-
-space.appendChild(dynamicWorld);
 
 
-/* ---------- DATA ---------- */
+/* =========================
+   DYNAMIC WORLD
+========================= */
+
+const dynamicWorld =
+  document.createElement("div");
+
+dynamicWorld.id =
+  "dynamicWorld";
+
+Object.assign(
+  dynamicWorld.style,
+  {
+    position: "absolute",
+    inset: "0",
+    pointerEvents: "none"
+  }
+);
+
+document
+  .getElementById("space")
+  .appendChild(dynamicWorld);
+
+
+/* =========================
+   DATA
+========================= */
 
 const wallets = [];
 const tokens = [];
 const transactions = [];
+const connections = [];
+
 
 const walletNames = [
   "7xK9...mP2",
@@ -741,6 +753,7 @@ const walletNames = [
   "3NpX...q72"
 ];
 
+
 const tokenNames = [
   "$SOL",
   "$BONK",
@@ -751,439 +764,618 @@ const tokenNames = [
 ];
 
 
-/* ---------- CREATE NODE ---------- */
+/* =========================
+   CREATE NODE
+========================= */
 
-function createNode(type, x, y, name) {
+function createDynamicNode(
+  type,
+  x,
+  y,
+  name
+) {
 
-  const node = document.createElement("div");
+  const node =
+    document.createElement("div");
 
-  node.className = `dynamic-node ${type}`;
+  node.className =
+    `dynamic-node ${type}`;
+
 
   const size =
     type === "wallet"
-      ? 18 + Math.random() * 18
-      : type === "token"
-      ? 28 + Math.random() * 22
-      : 10 + Math.random() * 8;
+      ? 14 + Math.random() * 18
+      : 26 + Math.random() * 20;
 
-  Object.assign(node.style, {
-    position: "absolute",
-    left: `${x}%`,
-    top: `${y}%`,
-    width: `${size}px`,
-    height: `${size}px`,
-    borderRadius: "50%",
-    transform: "translate(-50%, -50%)",
-    pointerEvents: type === "tx" ? "none" : "auto",
-    cursor: type === "tx" ? "default" : "pointer",
-    zIndex: type === "token" ? "5" : "3"
-  });
 
-  node.dataset.name = name;
+  node.style.width =
+    `${size}px`;
 
-  node.addEventListener("click", () => {
+  node.style.height =
+    `${size}px`;
 
-    if (typeof openNode === "function") {
+  node.style.left =
+    `${x}%`;
 
-      const description =
-        type === "wallet"
-          ? `Wallet activity detected on Solana. Address: ${name}`
-          : `Token activity detected on Solana. Asset: ${name}`;
+  node.style.top =
+    `${y}%`;
+
+
+  node.dataset.name =
+    name;
+
+
+  node.addEventListener(
+    "click",
+    (e) => {
+
+      e.stopPropagation();
 
       openNode(
         type.toUpperCase(),
         name,
-        description
+        type === "wallet"
+          ? `Wallet activity detected on Solana. Address: ${name}`
+          : `Token activity detected on Solana. Asset: ${name}`
       );
-    }
 
-  });
+    }
+  );
+
 
   dynamicWorld.appendChild(node);
 
+
   return {
+
     element: node,
+
     x,
     y,
+
     type,
     name,
-    vx: (Math.random() - 0.5) * 0.025,
-    vy: (Math.random() - 0.5) * 0.025
+
+    vx:
+      (Math.random() - .5)
+      * .018,
+
+    vy:
+      (Math.random() - .5)
+      * .018
+
   };
+
 }
 
 
-/* ---------- CREATE WALLETS ---------- */
+/* =========================
+   WALLETS
+========================= */
 
-for (let i = 0; i < 28; i++) {
+for (
+  let i = 0;
+  i < 28;
+  i++
+) {
 
-  const x = 8 + Math.random() * 84;
-  const y = 12 + Math.random() * 76;
+  const x =
+    5 + Math.random() * 90;
+
+  const y =
+    8 + Math.random() * 84;
 
   const name =
-    walletNames[i % walletNames.length];
+    walletNames[
+      i % walletNames.length
+    ];
 
   wallets.push(
-    createNode(
+    createDynamicNode(
       "wallet",
       x,
       y,
       name
     )
   );
+
 }
 
 
-/* ---------- CREATE TOKENS ---------- */
+/* =========================
+   TOKENS
+========================= */
 
-for (let i = 0; i < 10; i++) {
+for (
+  let i = 0;
+  i < 10;
+  i++
+) {
 
-  const x = 12 + Math.random() * 76;
-  const y = 15 + Math.random() * 70;
+  const x =
+    8 + Math.random() * 84;
+
+  const y =
+    10 + Math.random() * 78;
 
   const name =
-    tokenNames[i % tokenNames.length];
+    tokenNames[
+      i % tokenNames.length
+    ];
 
   tokens.push(
-    createNode(
+    createDynamicNode(
       "token",
       x,
       y,
       name
     )
   );
+
 }
 
 
-/* ---------- CONNECTIONS ---------- */
-
-const connectionLayer =
-  document.createElement("canvas");
-
-connectionLayer.id = "connectionLayer";
-
-Object.assign(connectionLayer.style, {
-  position: "absolute",
-  inset: "0",
-  width: "100%",
-  height: "100%",
-  pointerEvents: "none",
-  zIndex: "1"
-});
-
-dynamicWorld.prepend(connectionLayer);
-
-const ctx = connectionLayer.getContext("2d");
-
-
-function resizeConnectionCanvas() {
-
-  connectionLayer.width =
-    dynamicWorld.clientWidth;
-
-  connectionLayer.height =
-    dynamicWorld.clientHeight;
-}
-
-resizeConnectionCanvas();
-
-window.addEventListener(
-  "resize",
-  resizeConnectionCanvas
-);
-
-
-/* ---------- CONNECTION PAIRS ---------- */
-
-const connections = [];
+/* =========================
+   CONNECTIONS
+========================= */
 
 function connect(a, b) {
 
   connections.push({
     a,
-    b,
-    activity: Math.random()
+    b
   });
+
 }
 
 
-/* connect wallets to nearby wallets */
+wallets.forEach(
+  wallet => {
 
-for (let i = 0; i < wallets.length; i++) {
+    for (
+      let i = 0;
+      i < 2;
+      i++
+    ) {
 
-  const wallet = wallets[i];
+      const target =
+        wallets[
+          Math.floor(
+            Math.random()
+            * wallets.length
+          )
+        ];
 
-  for (let j = 0; j < 2; j++) {
+      if (
+        target !== wallet
+      ) {
 
-    const target =
-      wallets[
-        Math.floor(
-          Math.random() * wallets.length
-        )
-      ];
+        connect(
+          wallet,
+          target
+        );
 
-    if (target !== wallet) {
-      connect(wallet, target);
+      }
+
     }
+
   }
+);
+
+
+tokens.forEach(
+  token => {
+
+    for (
+      let i = 0;
+      i < 4;
+      i++
+    ) {
+
+      const wallet =
+        wallets[
+          Math.floor(
+            Math.random()
+            * wallets.length
+          )
+        ];
+
+      connect(
+        token,
+        wallet
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================
+   CONNECTION CANVAS
+========================= */
+
+const canvas =
+  document.getElementById(
+    "connectionLayer"
+  );
+
+const ctx =
+  canvas.getContext("2d");
+
+
+function resizeCanvas() {
+
+  canvas.width =
+    window.innerWidth;
+
+  canvas.height =
+    window.innerHeight;
+
 }
 
 
-/* connect tokens to wallets */
+resizeCanvas();
 
-tokens.forEach(token => {
-
-  for (let i = 0; i < 4; i++) {
-
-    const wallet =
-      wallets[
-        Math.floor(
-          Math.random() * wallets.length
-        )
-      ];
-
-    connect(token, wallet);
-  }
-});
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
 
 
-/* ---------- TRANSACTIONS ---------- */
+/* =========================
+   TRANSACTIONS
+========================= */
 
 function createTransaction() {
+
+  if (
+    connections.length === 0
+  ) return;
+
 
   const connection =
     connections[
       Math.floor(
-        Math.random() * connections.length
+        Math.random()
+        * connections.length
       )
     ];
 
-  if (!connection) return;
 
-  const tx = document.createElement("div");
+  const tx =
+    document.createElement("div");
 
-  tx.className = "dynamic-tx";
+  tx.className =
+    "dynamic-tx";
 
-  Object.assign(tx.style, {
-    position: "absolute",
-    width: "7px",
-    height: "7px",
-    borderRadius: "50%",
-    background: "#ff8a00",
-    boxShadow:
-      "0 0 10px #ff8a00, 0 0 25px #ff8a00",
-    pointerEvents: "none",
-    zIndex: "8"
-  });
 
   dynamicWorld.appendChild(tx);
 
+
   transactions.push({
+
     element: tx,
+
     connection,
+
     progress: 0
+
   });
+
 }
 
 
-/* initial transactions */
+for (
+  let i = 0;
+  i < 10;
+  i++
+) {
 
-for (let i = 0; i < 8; i++) {
   createTransaction();
+
 }
 
-
-/* new transaction every 900ms */
 
 setInterval(
   createTransaction,
-  900
+  700
 );
 
 
-/* ---------- ANIMATION ---------- */
+/* =========================
+   ANIMATION
+========================= */
 
 function animateWorld() {
 
-  /* move nodes */
 
-  [...wallets, ...tokens].forEach(node => {
+  /* MOVE NODES */
+
+  [
+    ...wallets,
+    ...tokens
+  ].forEach(node => {
 
     node.x += node.vx;
     node.y += node.vy;
 
-    if (node.x < 4 || node.x > 96) {
+
+    if (
+      node.x < 3 ||
+      node.x > 97
+    ) {
+
       node.vx *= -1;
+
     }
 
-    if (node.y < 6 || node.y > 94) {
+
+    if (
+      node.y < 5 ||
+      node.y > 95
+    ) {
+
       node.vy *= -1;
+
     }
+
 
     node.element.style.left =
       `${node.x}%`;
 
     node.element.style.top =
       `${node.y}%`;
+
   });
 
 
-  /* draw connections */
+  /* DRAW LINES */
 
   ctx.clearRect(
     0,
     0,
-    connectionLayer.width,
-    connectionLayer.height
+    canvas.width,
+    canvas.height
   );
 
-  connections.forEach(connection => {
 
-    const a = connection.a;
-    const b = connection.b;
+  connections.forEach(
+    connection => {
 
-    const ax =
-      a.x / 100 *
-      connectionLayer.width;
+      const a =
+        connection.a;
 
-    const ay =
-      a.y / 100 *
-      connectionLayer.height;
-
-    const bx =
-      b.x / 100 *
-      connectionLayer.width;
-
-    const by =
-      b.y / 100 *
-      connectionLayer.height;
-
-    ctx.beginPath();
-
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(bx, by);
-
-    ctx.strokeStyle =
-      "rgba(120,130,160,0.12)";
-
-    ctx.lineWidth = 1;
-
-    ctx.stroke();
-  });
+      const b =
+        connection.b;
 
 
-  /* move transactions */
+      const ax =
+        a.x / 100
+        * canvas.width;
 
-  transactions.forEach((tx, index) => {
+      const ay =
+        a.y / 100
+        * canvas.height;
 
-    tx.progress += 0.008;
 
-    if (tx.progress >= 1) {
+      const bx =
+        b.x / 100
+        * canvas.width;
 
-      tx.element.remove();
+      const by =
+        b.y / 100
+        * canvas.height;
 
-      transactions.splice(index, 1);
 
-      return;
+      ctx.beginPath();
+
+      ctx.moveTo(
+        ax,
+        ay
+      );
+
+      ctx.lineTo(
+        bx,
+        by
+      );
+
+
+      ctx.strokeStyle =
+        "rgba(120,130,160,.12)";
+
+      ctx.lineWidth = 1;
+
+      ctx.stroke();
+
     }
+  );
 
-    const a =
-      tx.connection.a;
 
-    const b =
-      tx.connection.b;
+  /* MOVE TX */
 
-    const progress =
-      tx.progress;
+  transactions.forEach(
+    (tx, index) => {
 
-    const x =
-      a.x +
-      (b.x - a.x) *
-      progress;
+      tx.progress += .009;
 
-    const y =
-      a.y +
-      (b.y - a.y) *
-      progress;
 
-    tx.element.style.left =
-      `${x}%`;
+      if (
+        tx.progress >= 1
+      ) {
 
-    tx.element.style.top =
-      `${y}%`;
-  });
+        tx.element.remove();
+
+        transactions.splice(
+          index,
+          1
+        );
+
+        return;
+
+      }
+
+
+      const a =
+        tx.connection.a;
+
+      const b =
+        tx.connection.b;
+
+
+      const x =
+        a.x +
+        (
+          b.x - a.x
+        )
+        * tx.progress;
+
+
+      const y =
+        a.y +
+        (
+          b.y - a.y
+        )
+        * tx.progress;
+
+
+      tx.element.style.left =
+        `${x}%`;
+
+      tx.element.style.top =
+        `${y}%`;
+
+    }
+  );
 
 
   requestAnimationFrame(
     animateWorld
   );
+
 }
+
 
 animateWorld();
 
 
-/* ---------- NODE VISUALS ---------- */
+/* =========================
+   LIVE FEED
+========================= */
 
-const dynamicStyle =
-  document.createElement("style");
+const feed =
+  document.getElementById(
+    "feedEvents"
+  );
 
-dynamicStyle.textContent = `
 
-.dynamic-node {
-  transition:
-    width 0.3s,
-    height 0.3s,
-    filter 0.3s;
-}
+function addEvent() {
 
-.dynamic-node.wallet {
+  const names = [
+    "wallet activity",
+    "token transfer",
+    "new transaction",
+    "network interaction",
+    "SOL movement"
+  ];
 
-  background:
-    radial-gradient(
-      circle,
-      #c9b8ff 0%,
-      #7355ff 35%,
-      #382080 75%,
-      transparent 76%
-    );
 
-  box-shadow:
-    0 0 12px #7658ff,
-    0 0 30px rgba(118,88,255,0.5);
+  const event =
+    document.createElement("div");
 
-}
+  event.className =
+    "event";
 
-.dynamic-node.token {
 
-  background:
-    radial-gradient(
-      circle,
-      #b8ffdc 0%,
-      #21d486 35%,
-      #08764b 75%,
-      transparent 76%
-    );
+  event.innerHTML =
+    `<span>●</span> ${
+      names[
+        Math.floor(
+          Math.random()
+          * names.length
+        )
+      ]
+    }`;
 
-  box-shadow:
-    0 0 14px #21d486,
-    0 0 35px rgba(33,212,134,0.5);
 
-}
+  feed.prepend(event);
 
-.dynamic-node:hover {
 
-  filter:
-    brightness(1.8)
-    drop-shadow(
-      0 0 12px white
-    );
+  while (
+    feed.children.length > 5
+  ) {
+
+    feed.lastChild.remove();
+
+  }
 
 }
 
-`;
 
-document.head.appendChild(
-  dynamicStyle
+for (
+  let i = 0;
+  i < 5;
+  i++
+) {
+
+  addEvent();
+
+}
+
+
+setInterval(
+  addEvent,
+  1600
 );
+
+
+/* =========================
+   NETWORK COUNTER
+========================= */
+
+setInterval(() => {
+
+  const activity =
+    document.getElementById(
+      "activity"
+    );
+
+  const nodes =
+    document.getElementById(
+      "nodes"
+    );
+
+
+  const activities = [
+    "HIGH",
+    "VERY HIGH",
+    "HIGH",
+    "ACTIVE"
+  ];
+
+
+  activity.textContent =
+    `ACTIVITY: ${
+      activities[
+        Math.floor(
+          Math.random()
+          * activities.length
+        )
+      ]
+    }`;
+
+
+  nodes.textContent =
+    `NODES: ${
+      33 +
+      Math.floor(
+        Math.random() * 20
+      )
+    }`;
+
+}, 1800);
+
+</script>
+
 </body>
 </html>
