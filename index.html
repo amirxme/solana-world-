@@ -6,7 +6,11 @@
 <title>Solana World</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
 html,body{
   width:100%;
@@ -22,9 +26,12 @@ html,body{
   inset:0;
   cursor:grab;
   transform-origin:center center;
+  touch-action:none;
 }
 
-#space.dragging{cursor:grabbing}
+#space.dragging{
+  cursor:grabbing;
+}
 
 #world{
   position:absolute;
@@ -95,7 +102,9 @@ header{
   pointer-events:none;
 }
 
-#network span{color:#ddd}
+#network span{
+  color:#ddd;
+}
 
 #worldNodes{
   position:absolute;
@@ -155,8 +164,15 @@ header{
 }
 
 @keyframes txPulse{
-  0%,100%{transform:scale(.8);opacity:.65}
-  50%{transform:scale(1.7);opacity:1}
+  0%,100%{
+    transform:scale(.8);
+    opacity:.65;
+  }
+
+  50%{
+    transform:scale(1.7);
+    opacity:1;
+  }
 }
 
 .tx-label{
@@ -167,6 +183,20 @@ header{
   color:rgba(255,180,110,.8);
   font-size:7px;
   letter-spacing:1px;
+}
+
+.particle{
+  position:absolute;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:
+    0 0 8px #fff,
+    0 0 18px #a56bff,
+    0 0 30px rgba(165,107,255,.8);
+  pointer-events:none;
+  z-index:30;
 }
 
 .cluster{
@@ -181,7 +211,11 @@ header{
   height:430px;
   left:100px;
   top:150px;
-  background:radial-gradient(circle,rgba(123,77,255,.18),transparent 68%);
+  background:radial-gradient(
+    circle,
+    rgba(123,77,255,.18),
+    transparent 68%
+  );
 }
 
 .meme{
@@ -189,7 +223,11 @@ header{
   height:380px;
   right:150px;
   top:100px;
-  background:radial-gradient(circle,rgba(255,73,177,.13),transparent 68%);
+  background:radial-gradient(
+    circle,
+    rgba(255,73,177,.13),
+    transparent 68%
+  );
 }
 
 .trading{
@@ -197,7 +235,11 @@ header{
   height:420px;
   left:650px;
   bottom:60px;
-  background:radial-gradient(circle,rgba(0,183,255,.12),transparent 68%);
+  background:radial-gradient(
+    circle,
+    rgba(0,183,255,.12),
+    transparent 68%
+  );
 }
 
 .nft{
@@ -205,7 +247,11 @@ header{
   height:350px;
   right:50px;
   bottom:90px;
-  background:radial-gradient(circle,rgba(68,255,153,.1),transparent 68%);
+  background:radial-gradient(
+    circle,
+    rgba(68,255,153,.1),
+    transparent 68%
+  );
 }
 
 .zone{
@@ -292,6 +338,7 @@ header{
     opacity:.8;
     transform:translate(-50%,-50%) scale(.2);
   }
+
   100%{
     opacity:0;
     transform:translate(-50%,-50%) scale(8);
@@ -311,11 +358,32 @@ header{
 }
 
 @media(max-width:700px){
-  header{top:17px;left:18px}
-  #network{top:17px;right:18px}
-  #feed{left:18px;bottom:18px;width:240px}
-  #panel{right:18px;bottom:18px;width:260px}
-  #status{display:none}
+
+  header{
+    top:17px;
+    left:18px;
+  }
+
+  #network{
+    top:17px;
+    right:18px;
+  }
+
+  #feed{
+    left:18px;
+    bottom:18px;
+    width:240px;
+  }
+
+  #panel{
+    right:18px;
+    bottom:18px;
+    width:260px;
+  }
+
+  #status{
+    display:none;
+  }
 }
 </style>
 </head>
@@ -372,140 +440,276 @@ header{
 
 <script>
 
-const space = document.getElementById("space");
-const world = document.getElementById("world");
-const canvas = document.getElementById("connections");
-const ctx = canvas.getContext("2d");
+const space=document.getElementById("space");
+const world=document.getElementById("world");
+const canvas=document.getElementById("connections");
+const ctx=canvas.getContext("2d");
 
-const worldNodes = document.getElementById("worldNodes");
-const feedItems = document.getElementById("feedItems");
+const worldNodes=document.getElementById("worldNodes");
+const feedItems=document.getElementById("feedItems");
 
-const activity = document.getElementById("activity");
-const walletCount = document.getElementById("walletCount");
-const txCount = document.getElementById("txCount");
+const activity=document.getElementById("activity");
+const walletCount=document.getElementById("walletCount");
+const txCount=document.getElementById("txCount");
 
-const panel = document.getElementById("panel");
-const panelContent = document.getElementById("panelContent");
+const panel=document.getElementById("panel");
+const panelContent=document.getElementById("panelContent");
 
-let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
+let scale=1;
+let offsetX=0;
+let offsetY=0;
 
-let dragging = false;
-let startX = 0;
-let startY = 0;
-let startOffsetX = 0;
-let startOffsetY = 0;
+let dragging=false;
 
-let touchDistance = 0;
-let touchScale = 1;
+let startX=0;
+let startY=0;
 
-const walletMap = new Map();
-const transactions = [];
+let startOffsetX=0;
+let startOffsetY=0;
 
-function resizeCanvas(){
-  canvas.width = world.clientWidth;
-  canvas.height = world.clientHeight;
-  drawConnections();
-}
+let touchDistance=0;
+let touchScale=1;
 
-window.addEventListener("resize",resizeCanvas);
-resizeCanvas();
+const walletMap=new Map();
+const transactions=[];
+
+
+/* =========================
+   CAMERA
+========================= */
 
 function applyCamera(){
-  space.style.transform =
+
+  space.style.transform=
     `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+
 }
 
-space.addEventListener("mousedown",e=>{
-  if(e.target.closest(".wallet,.tx")) return;
 
-  dragging=true;
+/* =========================
+   CANVAS
+========================= */
 
-  startX=e.clientX;
-  startY=e.clientY;
+function resizeCanvas(){
 
-  startOffsetX=offsetX;
-  startOffsetY=offsetY;
+  canvas.width=world.clientWidth;
+  canvas.height=world.clientHeight;
 
-  space.classList.add("dragging");
-});
+  drawConnections();
 
-window.addEventListener("mousemove",e=>{
-  if(!dragging)return;
+}
 
-  offsetX=startOffsetX+(e.clientX-startX);
-  offsetY=startOffsetY+(e.clientY-startY);
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
 
-  applyCamera();
-});
+resizeCanvas();
 
-window.addEventListener("mouseup",()=>{
-  dragging=false;
-  space.classList.remove("dragging");
-});
 
-space.addEventListener("wheel",e=>{
-  e.preventDefault();
+/* =========================
+   DESKTOP DRAG
+========================= */
 
-  scale*=e.deltaY>0?.9:1.1;
+space.addEventListener(
+  "mousedown",
+  e=>{
 
-  scale=Math.max(.45,Math.min(2.5,scale));
+    if(
+      e.target.closest(".wallet") ||
+      e.target.closest(".tx")
+    ){
+      return;
+    }
 
-  applyCamera();
-},{passive:false});
+    dragging=true;
 
-space.addEventListener("touchstart",e=>{
-
-  if(e.touches.length===1){
-
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
+    startX=e.clientX;
+    startY=e.clientY;
 
     startOffsetX=offsetX;
     startOffsetY=offsetY;
 
-  }
-
-  if(e.touches.length===2){
-
-    touchDistance=getDistance(e);
-    touchScale=scale;
+    space.classList.add("dragging");
 
   }
+);
 
-},{passive:false});
 
+window.addEventListener(
+  "mousemove",
+  e=>{
 
-space.addEventListener("touchmove",e=>{
-
-  if(e.touches.length===1){
-
-    e.preventDefault();
+    if(!dragging)return;
 
     offsetX=
       startOffsetX+
-      (e.touches[0].clientX-startX);
+      (e.clientX-startX);
 
     offsetY=
       startOffsetY+
-      (e.touches[0].clientY-startY);
+      (e.clientY-startY);
 
     applyCamera();
 
   }
+);
 
-  if(e.touches.length===2){
+
+window.addEventListener(
+  "mouseup",
+  ()=>{
+
+    dragging=false;
+
+    space.classList.remove(
+      "dragging"
+    );
+
+  }
+);
+
+
+/* =========================
+   DESKTOP ZOOM
+========================= */
+
+space.addEventListener(
+  "wheel",
+  e=>{
 
     e.preventDefault();
 
-    const distance=getDistance(e);
+    const oldScale=scale;
 
-    if(touchDistance>0){
+    scale*=
+      e.deltaY>0
+        ?0.9
+        :1.1;
+
+    scale=
+      Math.max(
+        .45,
+        Math.min(2.5,scale)
+      );
+
+    /*
+      Keep zoom centered around
+      the mouse position.
+    */
+
+    const rect=
+      space.getBoundingClientRect();
+
+    const mouseX=
+      e.clientX-rect.left;
+
+    const mouseY=
+      e.clientY-rect.top;
+
+    const factor=
+      scale/oldScale;
+
+    offsetX=
+      mouseX-(mouseX-offsetX)*factor;
+
+    offsetY=
+      mouseY-(mouseY-offsetY)*factor;
+
+    applyCamera();
+
+  },
+  {passive:false}
+);
+
+
+/* =========================
+   MOBILE TOUCH
+========================= */
+
+space.addEventListener(
+  "touchstart",
+  e=>{
+
+    if(e.touches.length===1){
+
+      startX=
+        e.touches[0].clientX;
+
+      startY=
+        e.touches[0].clientY;
+
+      startOffsetX=offsetX;
+      startOffsetY=offsetY;
+
+    }
+
+    if(e.touches.length===2){
+
+      touchDistance=
+        getDistance(e);
+
+      touchScale=scale;
+
+    }
+
+  },
+  {passive:false}
+);
+
+
+space.addEventListener(
+  "touchmove",
+  e=>{
+
+    /*
+      One finger = move world.
+    */
+
+    if(e.touches.length===1){
+
+      e.preventDefault();
+
+      offsetX=
+        startOffsetX+
+        (
+          e.touches[0].clientX-
+          startX
+        );
+
+      offsetY=
+        startOffsetY+
+        (
+          e.touches[0].clientY-
+          startY
+        );
+
+      applyCamera();
+
+    }
+
+
+    /*
+      Two fingers = pinch zoom.
+    */
+
+    if(e.touches.length===2){
+
+      e.preventDefault();
+
+      const distance=
+        getDistance(e);
+
+      if(touchDistance<=0){
+        return;
+      }
 
       scale=
         touchScale*
-        (distance/touchDistance);
+        (
+          distance/
+          touchDistance
+        );
 
       scale=
         Math.max(
@@ -517,24 +721,35 @@ space.addEventListener("touchmove",e=>{
 
     }
 
+  },
+  {passive:false}
+);
+
+
+space.addEventListener(
+  "touchend",
+  e=>{
+
+    /*
+      When pinch ends and one finger
+      remains, reset drag origin.
+    */
+
+    if(e.touches.length===1){
+
+      startX=
+        e.touches[0].clientX;
+
+      startY=
+        e.touches[0].clientY;
+
+      startOffsetX=offsetX;
+      startOffsetY=offsetY;
+
+    }
+
   }
-
-},{passive:false});
-
-
-space.addEventListener("touchend",e=>{
-
-  if(e.touches.length===1){
-
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
-
-    startOffsetX=offsetX;
-    startOffsetY=offsetY;
-
-  }
-
-});
+);
 
 
 function getDistance(e){
@@ -548,64 +763,111 @@ function getDistance(e){
     e.touches[1].clientY;
 
   return Math.sqrt(
-    dx*dx+dy*dy
+    dx*dx+
+    dy*dy
   );
 
 }
+
+
+/* =========================
+   HELPERS
+========================= */
 
 function shortAddress(address){
 
   if(!address)return "";
 
-  return address.slice(0,5)+"..."+address.slice(-4);
+  return(
+    address.slice(0,5)+
+    "..."+
+    address.slice(-4)
+  );
+
 }
+
 
 function positionWallet(address){
 
   const angle=
-    Math.random()*Math.PI*2;
+    Math.random()*
+    Math.PI*2;
 
   const radius=
-    180+Math.random()*380;
+    180+
+    Math.random()*380;
 
   const centerX=900;
   const centerY=550;
 
   let x=
     centerX+
-    Math.cos(angle)*radius;
+    Math.cos(angle)*
+    radius;
 
   let y=
     centerY+
-    Math.sin(angle)*radius;
+    Math.sin(angle)*
+    radius;
 
-  x=Math.max(50,Math.min(1750,x));
-  y=Math.max(50,Math.min(1050,y));
+  x=
+    Math.max(
+      50,
+      Math.min(1750,x)
+    );
 
-  return {x,y};
+  y=
+    Math.max(
+      50,
+      Math.min(1050,y)
+    );
+
+  return{
+    x,
+    y
+  };
+
 }
+
+
+/* =========================
+   WALLET
+========================= */
 
 function createWallet(address){
 
   if(walletMap.has(address)){
+
     return walletMap.get(address);
+
   }
 
-  const pos=positionWallet(address);
+  const pos=
+    positionWallet(address);
 
-  const el=document.createElement("div");
+  const el=
+    document.createElement("div");
 
-  el.className="wallet real";
+  el.className=
+    "wallet real";
 
-  el.style.left=pos.x+"px";
-  el.style.top=pos.y+"px";
+  el.style.left=
+    pos.x+"px";
 
-  el.dataset.address=address;
-  el.dataset.type="REAL WALLET";
+  el.style.top=
+    pos.y+"px";
 
-  const label=document.createElement("div");
+  el.dataset.address=
+    address;
 
-  label.className="wallet-label";
+  el.dataset.type=
+    "REAL WALLET";
+
+  const label=
+    document.createElement("div");
+
+  label.className=
+    "wallet-label";
 
   label.textContent=
     shortAddress(address);
@@ -621,24 +883,38 @@ function createWallet(address){
     el
   };
 
-  walletMap.set(address,wallet);
+  walletMap.set(
+    address,
+    wallet
+  );
 
-  el.addEventListener("click",e=>{
+  el.addEventListener(
+    "click",
+    e=>{
 
-    e.stopPropagation();
+      e.stopPropagation();
 
-    openWallet(address);
+      openWallet(address);
 
-  });
+    }
+  );
 
-  walletCount.textContent=walletMap.size;
+  walletCount.textContent=
+    walletMap.size;
 
   return wallet;
+
 }
+
+
+/* =========================
+   WALLET PANEL
+========================= */
 
 function openWallet(address){
 
-  panel.style.display="block";
+  panel.style.display=
+    "block";
 
   panelContent.innerHTML=
     "<b>TYPE</b><br>"+
@@ -649,9 +925,18 @@ function openWallet(address){
 
 }
 
-function openTransaction(signature,wallets){
 
-  panel.style.display="block";
+/* =========================
+   TRANSACTION PANEL
+========================= */
+
+function openTransaction(
+  signature,
+  wallets
+){
+
+  panel.style.display=
+    "block";
 
   panelContent.innerHTML=
     "<b>TYPE</b><br>"+
@@ -665,17 +950,29 @@ function openTransaction(signature,wallets){
 
 }
 
-document.addEventListener("click",e=>{
 
-  if(
-    !e.target.closest(".wallet") &&
-    !e.target.closest(".tx") &&
-    !e.target.closest("#panel")
-  ){
-    panel.style.display="none";
+document.addEventListener(
+  "click",
+  e=>{
+
+    if(
+      !e.target.closest(".wallet") &&
+      !e.target.closest(".tx") &&
+      !e.target.closest("#panel")
+    ){
+
+      panel.style.display=
+        "none";
+
+    }
+
   }
+);
 
-});
+
+/* =========================
+   TRANSACTION
+========================= */
 
 function createTransaction(tx){
 
@@ -683,24 +980,35 @@ function createTransaction(tx){
     (tx.wallets||[])
     .filter(Boolean);
 
-  if(!wallets.length)return;
+  if(!wallets.length){
+    return;
+  }
 
   const walletObjects=
-    wallets.map(createWallet);
+    wallets.map(
+      createWallet
+    );
 
   const existing=
     transactions.find(
-      t=>t.signature===tx.signature
+      t=>
+        t.signature===
+        tx.signature
     );
 
-  if(existing)return;
+  if(existing){
+    return;
+  }
 
   const first=
     walletObjects[0];
 
   const last=
     walletObjects[
-      Math.min(1,walletObjects.length-1)
+      Math.min(
+        1,
+        walletObjects.length-1
+      )
     ];
 
   const x=
@@ -709,133 +1017,219 @@ function createTransaction(tx){
   const y=
     (first.y+last.y)/2;
 
-  const el=document.createElement("div");
 
-  el.className="tx";
+  /*
+    Transaction point
+  */
 
-  el.style.left=x+"px";
-  el.style.top=y+"px";
+  const el=
+    document.createElement("div");
 
-  const label=document.createElement("div");
+  el.className=
+    "tx";
 
-  label.className="tx-label";
+  el.style.left=
+    x+"px";
+
+  el.style.top=
+    y+"px";
+
+
+  const label=
+    document.createElement("div");
+
+  label.className=
+    "tx-label";
 
   label.textContent=
-    "TX "+shortAddress(tx.signature);
+    "TX "+
+    shortAddress(
+      tx.signature
+    );
 
   el.appendChild(label);
 
   worldNodes.appendChild(el);
 
-  el.addEventListener("click",e=>{
 
-    e.stopPropagation();
+  el.addEventListener(
+    "click",
+    e=>{
 
-    openTransaction(
-      tx.signature,
-      wallets
-    );
+      e.stopPropagation();
 
-  });
+      openTransaction(
+        tx.signature,
+        wallets
+      );
+
+    }
+  );
+
 
   transactions.push({
-    signature:tx.signature,
-    wallets:walletObjects,
+
+    signature:
+      tx.signature,
+
+    wallets:
+      walletObjects,
+
     el
+
   });
 
-  txCount.textContent=transactions.length;
+
+  txCount.textContent=
+    transactions.length;
+
 
   addFeed(
-    "REAL TX  "+shortAddress(tx.signature),
+    "REAL TX  "+
+    shortAddress(
+      tx.signature
+    ),
     true
   );
 
-  createPulse(x,y);
 
-  // Moving transaction particle
-  if(walletObjects.length>=2){
+  createPulse(
+    x,
+    y
+  );
 
-    const particle=
-      document.createElement("div");
 
-    particle.style.position="absolute";
-    particle.style.width="5px";
-    particle.style.height="5px";
-    particle.style.borderRadius="50%";
-    particle.style.background="#ffffff";
-    particle.style.boxShadow=
-      "0 0 8px #ffffff, 0 0 18px #a56bff";
-    particle.style.pointerEvents="none";
-    particle.style.zIndex="20";
+  /*
+    Animated transaction particle
+  */
 
-    worldNodes.appendChild(particle);
+  if(
+    walletObjects.length>=2
+  ){
 
-    const a=first;
-    const b=last;
-
-    const duration=
-      900+Math.random()*900;
-
-    const start=
-      performance.now();
-
-    function animateParticle(now){
-
-      const progress=
-        Math.min(
-          (now-start)/duration,
-          1
-        );
-
-      const eased=
-        progress<0.5
-          ?2*progress*progress
-          :1-Math.pow(-2*progress+2,2)/2;
-
-      const px=
-        a.x+
-        (b.x-a.x)*eased;
-
-      const py=
-        a.y+
-        (b.y-a.y)*eased;
-
-      particle.style.left=
-        px+"px";
-
-      particle.style.top=
-        py+"px";
-
-      particle.style.transform=
-        `scale(${1+Math.sin(progress*Math.PI)*1.5})`;
-
-      if(progress<1){
-
-        requestAnimationFrame(
-          animateParticle
-        );
-
-      }else{
-
-        particle.remove();
-
-        createPulse(
-          b.x,
-          b.y
-        );
-
-      }
-
-    }
-
-    requestAnimationFrame(
-      animateParticle
+    animateTransaction(
+      first,
+      last
     );
 
   }
 
 }
+
+
+/* =========================
+   MOVING PARTICLE
+========================= */
+
+function animateTransaction(
+  from,
+  to
+){
+
+  const particle=
+    document.createElement(
+      "div"
+    );
+
+  particle.className=
+    "particle";
+
+  worldNodes.appendChild(
+    particle
+  );
+
+
+  const duration=
+    900+
+    Math.random()*900;
+
+  const start=
+    performance.now();
+
+
+  function frame(now){
+
+    const progress=
+      Math.min(
+        (now-start)/
+        duration,
+        1
+      );
+
+    /*
+      Smooth acceleration/deceleration.
+    */
+
+    const eased=
+      progress<.5
+        ?2*progress*progress
+        :1-
+          Math.pow(
+            -2*progress+2,
+            2
+          )/2;
+
+
+    const x=
+      from.x+
+      (to.x-from.x)*
+      eased;
+
+    const y=
+      from.y+
+      (to.y-from.y)*
+      eased;
+
+
+    particle.style.left=
+      x+"px";
+
+    particle.style.top=
+      y+"px";
+
+
+    const pulse=
+      1+
+      Math.sin(
+        progress*Math.PI
+      )*1.5;
+
+    particle.style.transform=
+      `translate(-50%,-50%) scale(${pulse})`;
+
+
+    if(progress<1){
+
+      requestAnimationFrame(
+        frame
+      );
+
+    }else{
+
+      particle.remove();
+
+      createPulse(
+        to.x,
+        to.y
+      );
+
+    }
+
+  }
+
+
+  requestAnimationFrame(
+    frame
+  );
+
+}
+
+
+/* =========================
+   CONNECTIONS
+========================= */
+
+function drawConnections(){
 
   ctx.clearRect(
     0,
@@ -846,51 +1240,91 @@ function createTransaction(tx){
 
   ctx.lineWidth=1;
 
-  transactions.forEach(tx=>{
 
-    const wallets=tx.wallets;
+  transactions.forEach(
+    tx=>{
 
-    if(wallets.length<2)return;
+      const wallets=
+        tx.wallets;
 
-    for(
-      let i=0;
-      i<wallets.length-1;
-      i++
-    ){
+      if(
+        wallets.length<2
+      ){
+        return;
+      }
 
-      const a=wallets[i];
-      const b=wallets[i+1];
 
-      ctx.beginPath();
+      for(
+        let i=0;
+        i<wallets.length-1;
+        i++
+      ){
 
-      ctx.moveTo(a.x,a.y);
-      ctx.lineTo(b.x,b.y);
+        const a=
+          wallets[i];
 
-      ctx.strokeStyle=
-        "rgba(164,105,255,.22)";
+        const b=
+          wallets[i+1];
 
-      ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          a.x,
+          a.y
+        );
+
+        ctx.lineTo(
+          b.x,
+          b.y
+        );
+
+        ctx.strokeStyle=
+          "rgba(164,105,255,.22)";
+
+        ctx.stroke();
+
+      }
 
     }
-
-  });
+  );
 
 }
 
-function addFeed(text,real=false){
+
+/* =========================
+   FEED
+========================= */
+
+function addFeed(
+  text,
+  real=false
+){
 
   const item=
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   item.className=
     "feed-item"+
-    (real?" real":"");
+    (
+      real
+        ?" real"
+        :""
+    );
 
-  item.textContent=text;
+  item.textContent=
+    text;
 
-  feedItems.prepend(item);
+  feedItems.prepend(
+    item
+  );
 
-  while(feedItems.children.length>7){
+
+  while(
+    feedItems.children.length>7
+  ){
 
     feedItems.lastChild.remove();
 
@@ -898,43 +1332,79 @@ function addFeed(text,real=false){
 
 }
 
-function createPulse(x,y){
+
+/* =========================
+   PULSE
+========================= */
+
+function createPulse(
+  x,
+  y
+){
 
   const pulse=
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
-  pulse.className="network-pulse";
+  pulse.className=
+    "network-pulse";
 
-  pulse.style.left=x+"px";
-  pulse.style.top=y+"px";
+  pulse.style.left=
+    x+"px";
 
-  worldNodes.appendChild(pulse);
+  pulse.style.top=
+    y+"px";
 
-  setTimeout(()=>{
-    pulse.remove();
-  },2600);
+  worldNodes.appendChild(
+    pulse
+  );
+
+
+  setTimeout(
+    ()=>{
+      pulse.remove();
+    },
+    2600
+  );
 
 }
 
+
+/* =========================
+   SOLANA API
+========================= */
+
 async function loadSolana(){
 
-  activity.textContent="LOADING";
+  activity.textContent=
+    "LOADING";
+
 
   try{
 
     const response=
-      await fetch("/api/solana");
+      await fetch(
+        "/api/solana",
+        {
+          cache:"no-store"
+        }
+      );
+
 
     if(!response.ok){
 
       throw new Error(
-        "API "+response.status
+        "API "+
+        response.status
       );
 
     }
 
+
     const data=
       await response.json();
+
 
     if(!data.success){
 
@@ -944,13 +1414,21 @@ async function loadSolana(){
 
     }
 
-    const txs=
-      data.transactions||[];
 
-    txs.forEach(createTransaction);
+    const txs=
+      data.transactions||
+      [];
+
+
+    txs.forEach(
+      createTransaction
+    );
+
 
     activity.textContent=
-      txs.length+" LIVE TX";
+      txs.length+
+      " LIVE TX";
+
 
     walletCount.textContent=
       walletMap.size;
@@ -958,13 +1436,20 @@ async function loadSolana(){
     txCount.textContent=
       transactions.length;
 
+
     drawConnections();
+
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "SOLANA WORLD ERROR:",
+      error
+    );
 
-    activity.textContent="ERROR";
+    activity.textContent=
+      "ERROR";
+
 
     addFeed(
       "RPC CONNECTION ERROR"
@@ -973,6 +1458,11 @@ async function loadSolana(){
   }
 
 }
+
+
+/* =========================
+   START
+========================= */
 
 addFeed(
   "SOLANA WORLD INITIALIZED"
@@ -986,7 +1476,9 @@ addFeed(
   "WAITING FOR REAL NETWORK ACTIVITY..."
 );
 
+
 loadSolana();
+
 
 setInterval(
   loadSolana,
