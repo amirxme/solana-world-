@@ -548,6 +548,165 @@ document.addEventListener("mousemove", (e) => {
 });
 
 </script>
+/* CAMERA CONTROLS */
 
+let cameraX = 0;
+let cameraY = 0;
+let zoom = 1;
+
+let dragging = false;
+let startX = 0;
+let startY = 0;
+let lastX = 0;
+let lastY = 0;
+
+function updateCamera() {
+  space.style.transform =
+    `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+}
+
+/* MOUSE DRAG */
+
+document.addEventListener("mousedown", (e) => {
+
+  if (e.target.closest(".node") || e.target.closest(".panel")) {
+    return;
+  }
+
+  dragging = true;
+
+  startX = e.clientX;
+  startY = e.clientY;
+
+  lastX = cameraX;
+  lastY = cameraY;
+});
+
+document.addEventListener("mousemove", (e) => {
+
+  if (!dragging) return;
+
+  cameraX = lastX + (e.clientX - startX);
+  cameraY = lastY + (e.clientY - startY);
+
+  updateCamera();
+});
+
+document.addEventListener("mouseup", () => {
+  dragging = false;
+});
+
+/* MOUSE ZOOM */
+
+document.addEventListener("wheel", (e) => {
+
+  e.preventDefault();
+
+  zoom += e.deltaY * -0.001;
+
+  zoom = Math.min(
+    Math.max(zoom, 0.65),
+    2.5
+  );
+
+  updateCamera();
+
+}, { passive: false });
+
+/* TOUCH DRAG + PINCH ZOOM */
+
+let touchStartX = 0;
+let touchStartY = 0;
+let initialDistance = null;
+let initialZoom = 1;
+
+document.addEventListener("touchstart", (e) => {
+
+  if (e.touches.length === 1) {
+
+    const touch = e.touches[0];
+
+    if (touch.target.closest(".node")) {
+      return;
+    }
+
+    dragging = true;
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+    lastX = cameraX;
+    lastY = cameraY;
+  }
+
+  if (e.touches.length === 2) {
+
+    dragging = false;
+
+    const dx =
+      e.touches[0].clientX -
+      e.touches[1].clientX;
+
+    const dy =
+      e.touches[0].clientY -
+      e.touches[1].clientY;
+
+    initialDistance =
+      Math.sqrt(dx * dx + dy * dy);
+
+    initialZoom = zoom;
+  }
+
+}, { passive: false });
+
+document.addEventListener("touchmove", (e) => {
+
+  e.preventDefault();
+
+  if (e.touches.length === 1 && dragging) {
+
+    const touch = e.touches[0];
+
+    cameraX =
+      lastX + (touch.clientX - touchStartX);
+
+    cameraY =
+      lastY + (touch.clientY - touchStartY);
+
+    updateCamera();
+  }
+
+  if (e.touches.length === 2 && initialDistance) {
+
+    const dx =
+      e.touches[0].clientX -
+      e.touches[1].clientX;
+
+    const dy =
+      e.touches[0].clientY -
+      e.touches[1].clientY;
+
+    const distance =
+      Math.sqrt(dx * dx + dy * dy);
+
+    zoom =
+      initialZoom * (distance / initialDistance);
+
+    zoom = Math.min(
+      Math.max(zoom, 0.65),
+      2.5
+    );
+
+    updateCamera();
+  }
+
+}, { passive: false });
+
+document.addEventListener("touchend", () => {
+
+  dragging = false;
+  initialDistance = null;
+
+});
 </body>
 </html>
