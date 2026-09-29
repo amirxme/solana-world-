@@ -1,13 +1,11 @@
 export default async function handler(req, res) {
+  const RPC = "https://api.mainnet-beta.solana.com";
+
+  const sourceAddress =
+    "Vote111111111111111111111111111111111111111";
+
   try {
-    const address =
-      req.query.address ||
-      "Vote111111111111111111111111111111111111111";
-
-    const rpc = "https://api.mainnet-beta.solana.com";
-
-    // Получаем последние транзакции адреса
-    const signaturesResponse = await fetch(rpc, {
+    const response = await fetch(RPC, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -17,78 +15,104 @@ export default async function handler(req, res) {
         id: 1,
         method: "getSignaturesForAddress",
         params: [
-          address,
+          sourceAddress,
           {
-            limit: 10,
-            commitment: "confirmed"
+            limit: 10
           }
         ]
       })
     });
 
-    const signaturesData = await signaturesResponse.json();
-    const signatures = signaturesData.result || [];
+    const data = await response.json();
 
-    // Получаем подробности транзакций
-    const transactions = await Promise.all(
-      signatures.slice(0, 10).map(async (item) => {
-        try {
-          const response = await fetch(rpc, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              jsonrpc: "2.0",
-              id: 1,
-              method: "getTransaction",
-              params: [
-                item.signature,
-                {
-                  commitment: "confirmed",
-                  encoding: "jsonParsed",
-                  maxSupportedTransactionVersion: 0
-                }
-              ]
-            })
-          });
+    const signatures = data.result || [];
+    const transactions = [];
 
-          const data = await response.json();
-          const tx = data.result;
+    for (const item of signatures) {
+      const txResponse = await fetch(RPC, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getTransaction",
+          params: [
+            item.signature,
+            {
+              encoding: "jsonParsed",
+              maxSupportedTransactionVersion: 0
+            }
+          ]
+        })
+      });
 
-          if (!tx) return null;
+      const txData = await txResponse.json();
+      const tx = txData.result;
 
-          const accounts =
-            tx.transaction?.message?.accountKeys || [];
+      if (!tx) continue;
 
-          const wallets = accounts
-            .map(account => {
-              if (typeof account === "string") {
-                return account;
-              }
+      const accountKeys =
+        tx.transaction?.message?.accountKeys || [];
 
-              return account.pubkey;
-            })
-            .filter(Boolean)
-            .slice(0, 8);
+      const wallets = accountKeys
+        .map(account =>
+          typeof account === "string"
+            ? account
+            : account.pubkey
+        )
+        .filter(Boolean);
 
-          return {
-            signature: item.signature,
-            slot: item.slot,
-            blockTime: item.blockTime,
-            wallets
-          };
+      transactions.push({
+        signature: item.signature,
+        slot: item.slot,
+        blockTime: item.blockTime,
+        wallets
+      });
+    }
 
-        } catch {
-          return null;
-        }
-      })
-    );
+    const uniqueWallets = [
+      ...new Set(
+        transactions.flatMap(
+          tx => tx.wallets
+        )
+      )
+    ];
+
+    const balances = {};
+
+    for (const address of uniqueWallets) {
+      const balanceResponse = await fetch(RPC, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getBalance",
+          params: [address]
+        })
+      });
+
+      const balanceData =
+        await balanceResponse.json();
+
+      const lamports =
+        balanceData.result?.value;
+
+      if (typeof lamports === "number") {
+        balances[address] =
+          lamports / 1000000000;
+      }
+    }
 
     res.status(200).json({
       success: true,
-      address,
-      transactions: transactions.filter(Boolean)
+      address: sourceAddress,
+      balances,
+      transactions
     });
 
   } catch (error) {
