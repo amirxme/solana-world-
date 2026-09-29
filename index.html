@@ -751,13 +751,91 @@ function createTransaction(tx){
     true
   );
 
-  createPulse(
-    x,
-    y
-  );
-}
+  createPulse(x,y);
 
-function drawConnections(){
+  // Moving transaction particle
+  if(walletObjects.length>=2){
+
+    const particle=
+      document.createElement("div");
+
+    particle.style.position="absolute";
+    particle.style.width="5px";
+    particle.style.height="5px";
+    particle.style.borderRadius="50%";
+    particle.style.background="#ffffff";
+    particle.style.boxShadow=
+      "0 0 8px #ffffff, 0 0 18px #a56bff";
+    particle.style.pointerEvents="none";
+    particle.style.zIndex="20";
+
+    worldNodes.appendChild(particle);
+
+    const a=first;
+    const b=last;
+
+    const duration=
+      900+Math.random()*900;
+
+    const start=
+      performance.now();
+
+    function animateParticle(now){
+
+      const progress=
+        Math.min(
+          (now-start)/duration,
+          1
+        );
+
+      const eased=
+        progress<0.5
+          ?2*progress*progress
+          :1-Math.pow(-2*progress+2,2)/2;
+
+      const px=
+        a.x+
+        (b.x-a.x)*eased;
+
+      const py=
+        a.y+
+        (b.y-a.y)*eased;
+
+      particle.style.left=
+        px+"px";
+
+      particle.style.top=
+        py+"px";
+
+      particle.style.transform=
+        `scale(${1+Math.sin(progress*Math.PI)*1.5})`;
+
+      if(progress<1){
+
+        requestAnimationFrame(
+          animateParticle
+        );
+
+      }else{
+
+        particle.remove();
+
+        createPulse(
+          b.x,
+          b.y
+        );
+
+      }
+
+    }
+
+    requestAnimationFrame(
+      animateParticle
+    );
+
+  }
+
+}
 
   ctx.clearRect(
     0,
