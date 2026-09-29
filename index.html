@@ -2,885 +2,781 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Solana World</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#030306;
-  color:white;
-  font-family:Arial,Helvetica,sans-serif;
+* {
+    box-sizing: border-box;
 }
 
-#space{
-  position:absolute;
-  inset:0;
-  cursor:grab;
-  transform-origin:center center;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050508;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    touch-action: none;
 }
 
-#space.dragging{cursor:grabbing}
-
-#world{
-  position:absolute;
-  width:1800px;
-  height:1100px;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
+#space {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at center, #11101b 0%, #07070b 45%, #030304 100%);
+    cursor: grab;
 }
 
-#connections{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
+#space.dragging {
+    cursor: grabbing;
 }
 
-header{
-  position:fixed;
-  top:25px;
-  left:28px;
-  z-index:100;
-  pointer-events:none;
+#world {
+    position: absolute;
+    width: 3000px;
+    height: 3000px;
+    left: 50%;
+    top: 50%;
+    transform-origin: center center;
 }
 
-.logo{
-  font-size:19px;
-  font-weight:800;
-  letter-spacing:4px;
+#connections {
+    position: absolute;
+    inset: 0;
+    width: 3000px;
+    height: 3000px;
+    pointer-events: none;
 }
 
-.subtitle{
-  margin-top:6px;
-  font-size:10px;
-  letter-spacing:3px;
-  color:#777;
+#worldNodes {
+    position: absolute;
+    inset: 0;
 }
 
-.live{
-  margin-top:13px;
-  font-size:9px;
-  letter-spacing:2px;
-  color:#52ff91;
+.node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
 }
 
-.live:before{
-  content:"";
-  display:inline-block;
-  width:6px;
-  height:6px;
-  margin-right:7px;
-  border-radius:50%;
-  background:#52ff91;
-  box-shadow:0 0 10px #52ff91;
+.wallet {
+    width: 14px;
+    height: 14px;
+    background: #9945ff;
+    box-shadow:
+        0 0 10px #9945ff,
+        0 0 25px rgba(153,69,255,.7);
 }
 
-#network{
-  position:fixed;
-  right:28px;
-  top:25px;
-  z-index:100;
-  text-align:right;
-  font-size:9px;
-  line-height:1.9;
-  letter-spacing:2px;
-  color:#777;
-  pointer-events:none;
+.wallet::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    left: 5px;
+    top: 5px;
 }
 
-#network span{color:#ddd}
-
-#worldNodes{
-  position:absolute;
-  inset:0;
+.tx {
+    width: 9px;
+    height: 9px;
+    background: #ff9d38;
+    box-shadow:
+        0 0 8px #ff9d38,
+        0 0 18px rgba(255,157,56,.7);
 }
 
-.wallet{
-  position:absolute;
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#a56bff;
-  box-shadow:
-    0 0 12px rgba(165,107,255,.9),
-    0 0 35px rgba(165,107,255,.35);
-  cursor:pointer;
-  z-index:10;
-  transition:transform .2s;
+.wallet-label {
+    position: absolute;
+    left: 20px;
+    top: -4px;
+    color: rgba(255,255,255,.55);
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
-.wallet:hover{
-  transform:scale(2);
+header {
+    position: fixed;
+    z-index: 20;
+    top: 20px;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
 }
 
-.wallet.real{
-  width:13px;
-  height:13px;
-  background:#b16cff;
-  box-shadow:
-    0 0 15px rgba(177,108,255,1),
-    0 0 45px rgba(177,108,255,.4);
+.logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
 }
 
-.wallet-label{
-  position:absolute;
-  left:17px;
-  top:-3px;
-  white-space:nowrap;
-  font-size:7px;
-  letter-spacing:1px;
-  color:rgba(210,185,255,.7);
-  pointer-events:none;
+.subtitle {
+    margin-top: 5px;
+    color: #777;
+    font-size: 10px;
+    letter-spacing: 2px;
 }
 
-.tx{
-  position:absolute;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#ff9d42;
-  box-shadow:
-    0 0 14px #ff9d42,
-    0 0 35px rgba(255,157,66,.45);
-  z-index:15;
-  animation:txPulse 1.5s infinite;
-  cursor:pointer;
+.status {
+    text-align: right;
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.8;
 }
 
-@keyframes txPulse{
-  0%,100%{transform:scale(.8);opacity:.65}
-  50%{transform:scale(1.7);opacity:1}
+.status span {
+    color: #fff;
 }
 
-.tx-label{
-  position:absolute;
-  left:13px;
-  top:-5px;
-  white-space:nowrap;
-  color:rgba(255,180,110,.8);
-  font-size:7px;
-  letter-spacing:1px;
+.live {
+    color: #39ff88 !important;
 }
 
-.cluster{
-  position:absolute;
-  border-radius:50%;
-  pointer-events:none;
-  opacity:.3;
+#feed {
+    position: fixed;
+    z-index: 20;
+    left: 24px;
+    bottom: 24px;
+    width: 330px;
+    max-height: 180px;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-.defi{
-  width:430px;
-  height:430px;
-  left:100px;
-  top:150px;
-  background:radial-gradient(circle,rgba(123,77,255,.18),transparent 68%);
+.feed-title {
+    color: #666;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
 }
 
-.meme{
-  width:380px;
-  height:380px;
-  right:150px;
-  top:100px;
-  background:radial-gradient(circle,rgba(255,73,177,.13),transparent 68%);
+.feed-item {
+    color: #aaa;
+    font-size: 10px;
+    margin-top: 6px;
+    opacity: .9;
 }
 
-.trading{
-  width:420px;
-  height:420px;
-  left:650px;
-  bottom:60px;
-  background:radial-gradient(circle,rgba(0,183,255,.12),transparent 68%);
+.feed-item strong {
+    color: #fff;
 }
 
-.nft{
-  width:350px;
-  height:350px;
-  right:50px;
-  bottom:90px;
-  background:radial-gradient(circle,rgba(68,255,153,.1),transparent 68%);
+#panel {
+    position: fixed;
+    z-index: 30;
+    right: 24px;
+    bottom: 24px;
+    width: 280px;
+    padding: 18px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(5,5,8,.82);
+    backdrop-filter: blur(12px);
+    display: none;
 }
 
-.zone{
-  position:absolute;
-  font-size:8px;
-  letter-spacing:3px;
-  color:rgba(255,255,255,.2);
+#panel h3 {
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: 1px;
 }
 
-#feed{
-  position:fixed;
-  left:28px;
-  bottom:25px;
-  width:310px;
-  z-index:100;
-  pointer-events:none;
+#panel .address {
+    color: #9945ff;
+    font-size: 10px;
+    word-break: break-all;
 }
 
-.feed-title{
-  font-size:8px;
-  letter-spacing:3px;
-  color:#666;
-  margin-bottom:8px;
+#panel .info {
+    margin-top: 12px;
+    color: #888;
+    font-size: 10px;
+    line-height: 1.7;
 }
 
-.feed-item{
-  font-size:9px;
-  color:#aaa;
-  margin-top:6px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+#hint {
+    position: fixed;
+    z-index: 20;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.3);
+    font-size: 9px;
+    letter-spacing: 1px;
+    pointer-events: none;
 }
 
-.feed-item.real{
-  color:#ddd;
+.pulse {
+    animation: pulse 1.4s ease-out;
 }
 
-.feed-item.real:before{
-  content:"● ";
-  color:#ff9d42;
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(.5);
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
 }
 
-#panel{
-  position:fixed;
-  right:28px;
-  bottom:25px;
-  width:310px;
-  padding:18px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(7,7,12,.9);
-  backdrop-filter:blur(14px);
-  z-index:200;
-  display:none;
-}
+@media (max-width: 600px) {
+    header {
+        top: 14px;
+        left: 15px;
+        right: 15px;
+    }
 
-.panel-title{
-  font-size:8px;
-  color:#777;
-  letter-spacing:3px;
-  margin-bottom:12px;
-}
+    .logo {
+        font-size: 15px;
+    }
 
-.panel-content{
-  font-size:9px;
-  color:#ddd;
-  line-height:1.7;
-  word-break:break-all;
-}
+    .status {
+        font-size: 9px;
+    }
 
-.network-pulse{
-  position:absolute;
-  width:30px;
-  height:30px;
-  border:1px solid rgba(165,107,255,.6);
-  border-radius:50%;
-  transform:translate(-50%,-50%);
-  animation:pulse 2.5s forwards;
-  pointer-events:none;
-}
+    #feed {
+        left: 15px;
+        bottom: 15px;
+        width: 220px;
+    }
 
-@keyframes pulse{
-  0%{
-    opacity:.8;
-    transform:translate(-50%,-50%) scale(.2);
-  }
-  100%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(8);
-  }
-}
+    #panel {
+        right: 15px;
+        bottom: 15px;
+        width: 240px;
+    }
 
-#status{
-  position:fixed;
-  left:50%;
-  bottom:25px;
-  transform:translateX(-50%);
-  color:#555;
-  font-size:8px;
-  letter-spacing:2px;
-  z-index:100;
-  pointer-events:none;
-}
-
-@media(max-width:700px){
-  header{top:17px;left:18px}
-  #network{top:17px;right:18px}
-  #feed{left:18px;bottom:18px;width:240px}
-  #panel{right:18px;bottom:18px;width:260px}
-  #status{display:none}
+    #hint {
+        display: none;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="logo">SOLANA WORLD</div>
-  <div class="subtitle">THE BLOCKCHAIN, ALIVE.</div>
-  <div class="live">LIVE NETWORK</div>
-</header>
-
-<div id="network">
-  NETWORK: <span>SOLANA</span><br>
-  ACTIVITY: <span id="activity">CONNECTING</span><br>
-  REAL WALLETS: <span id="walletCount">0</span><br>
-  REAL TX: <span id="txCount">0</span>
-</div>
-
 <div id="space">
 
-  <div id="world">
+    <header>
+        <div>
+            <div class="logo">SOLANA WORLD</div>
+            <div class="subtitle">THE BLOCKCHAIN, ALIVE.</div>
+        </div>
 
-    <canvas id="connections"></canvas>
+        <div class="status">
+            <div><span class="live">● LIVE NETWORK</span></div>
+            <div>REAL WALLETS: <span id="walletCount">0</span></div>
+            <div>REAL TX: <span id="txCount">0</span></div>
+        </div>
+    </header>
 
-    <div class="cluster defi"></div>
-    <div class="cluster meme"></div>
-    <div class="cluster trading"></div>
-    <div class="cluster nft"></div>
+    <div id="world">
+        <canvas id="connections" width="3000" height="3000"></canvas>
+        <div id="worldNodes"></div>
+    </div>
 
-    <div class="zone" style="left:250px;top:380px">DEFI</div>
-    <div class="zone" style="right:330px;top:270px">MEME</div>
-    <div class="zone" style="left:850px;bottom:270px">TRADING</div>
-    <div class="zone" style="right:190px;bottom:300px">NFT</div>
+    <div id="feed">
+        <div class="feed-title">LIVE ACTIVITY</div>
+    </div>
 
-    <div id="worldNodes"></div>
+    <div id="panel">
+        <h3>WALLET</h3>
+        <div class="address" id="panelAddress"></div>
+        <div class="info" id="panelInfo"></div>
+    </div>
 
-  </div>
-</div>
+    <div id="hint">
+        DRAG TO MOVE · PINCH / SCROLL TO ZOOM
+    </div>
 
-<div id="feed">
-  <div class="feed-title">LIVE FEED</div>
-  <div id="feedItems"></div>
-</div>
-
-<div id="panel">
-  <div class="panel-title">SOLANA OBJECT</div>
-  <div id="panelContent" class="panel-content"></div>
-</div>
-
-<div id="status">
-  DRAG TO EXPLORE • SCROLL TO ZOOM
 </div>
 
 <script>
-
 const space = document.getElementById("space");
 const world = document.getElementById("world");
+const worldNodes = document.getElementById("worldNodes");
 const canvas = document.getElementById("connections");
 const ctx = canvas.getContext("2d");
 
-const worldNodes = document.getElementById("worldNodes");
-const feedItems = document.getElementById("feedItems");
-
-const activity = document.getElementById("activity");
 const walletCount = document.getElementById("walletCount");
 const txCount = document.getElementById("txCount");
 
+const feed = document.getElementById("feed");
 const panel = document.getElementById("panel");
-const panelContent = document.getElementById("panelContent");
+const panelAddress = document.getElementById("panelAddress");
+const panelInfo = document.getElementById("panelInfo");
+
+const WORLD_SIZE = 3000;
+const CENTER = WORLD_SIZE / 2;
 
 let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 
 let dragging = false;
-let startX = 0;
-let startY = 0;
+let dragStartX = 0;
+let dragStartY = 0;
 let startOffsetX = 0;
 let startOffsetY = 0;
 
-let touchDistance = 0;
-let touchScale = 1;
+let lastTouchDistance = null;
+let lastTouchCenter = null;
+
+const MIN_SCALE = 0.35;
+const MAX_SCALE = 3.5;
 
 const walletMap = new Map();
 const transactions = [];
 
-function resizeCanvas(){
-  canvas.width = world.clientWidth;
-  canvas.height = world.clientHeight;
-  drawConnections();
+function applyTransform() {
+    world.style.transform =
+        `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(${scale})`;
 }
 
-window.addEventListener("resize",resizeCanvas);
-resizeCanvas();
-
-function applyCamera(){
-  space.style.transform =
-    `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
 }
 
-space.addEventListener("mousedown",e=>{
-  if(e.target.closest(".wallet,.tx")) return;
+function zoomAt(clientX, clientY, newScale) {
+    newScale = clamp(newScale, MIN_SCALE, MAX_SCALE);
 
-  dragging=true;
+    const rect = space.getBoundingClientRect();
 
-  startX=e.clientX;
-  startY=e.clientY;
+    const mouseX = clientX - rect.left - rect.width / 2;
+    const mouseY = clientY - rect.top - rect.height / 2;
 
-  startOffsetX=offsetX;
-  startOffsetY=offsetY;
+    const worldX = (mouseX - offsetX) / scale;
+    const worldY = (mouseY - offsetY) / scale;
 
-  space.classList.add("dragging");
+    offsetX = mouseX - worldX * newScale;
+    offsetY = mouseY - worldY * newScale;
+
+    scale = newScale;
+
+    applyTransform();
+}
+
+/* =========================
+   MOUSE DRAG
+========================= */
+
+space.addEventListener("mousedown", e => {
+    if (e.button !== 0) return;
+
+    dragging = true;
+    space.classList.add("dragging");
+
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+
+    startOffsetX = offsetX;
+    startOffsetY = offsetY;
 });
 
-window.addEventListener("mousemove",e=>{
-  if(!dragging)return;
+window.addEventListener("mousemove", e => {
+    if (!dragging) return;
 
-  offsetX=startOffsetX+(e.clientX-startX);
-  offsetY=startOffsetY+(e.clientY-startY);
+    offsetX = startOffsetX + (e.clientX - dragStartX);
+    offsetY = startOffsetY + (e.clientY - dragStartY);
 
-  applyCamera();
+    applyTransform();
 });
 
-window.addEventListener("mouseup",()=>{
-  dragging=false;
-  space.classList.remove("dragging");
+window.addEventListener("mouseup", () => {
+    dragging = false;
+    space.classList.remove("dragging");
 });
 
-space.addEventListener("wheel",e=>{
-  e.preventDefault();
-
-  scale*=e.deltaY>0?.9:1.1;
-
-  scale=Math.max(.45,Math.min(2.5,scale));
-
-  applyCamera();
-},{passive:false});
-
-space.addEventListener("touchstart",e=>{
-
-  if(e.touches.length===1){
-
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
-
-    startOffsetX=offsetX;
-    startOffsetY=offsetY;
-
-  }
-
-  if(e.touches.length===2){
-
-    touchDistance=getDistance(e.touches);
-    touchScale=scale;
-
-  }
-
-},{passive:false});
-
-space.addEventListener("touchmove",e=>{
-
-  e.preventDefault();
-
-  if(e.touches.length===1){
-
-    offsetX=
-      startOffsetX+
-      (e.touches[0].clientX-startX);
-
-    offsetY=
-      startOffsetY+
-      (e.touches[0].clientY-startY);
-
-    applyCamera();
-  }
-
-  if(e.touches.length===2){
-
-    const distance=getDistance(e);
-
-    scale=
-      touchScale*
-      (distance/touchDistance);
-
-    scale=Math.max(.45,Math.min(2.5,scale));
-
-    applyCamera();
-  }
-
-},{passive:false});
-
-function getDistance(e){
-
-  const dx=
-    e.touches[0].clientX-
-    e.touches[1].clientX;
-
-  const dy=
-    e.touches[0].clientY-
-    e.touches[1].clientY;
-
-  return Math.sqrt(dx*dx+dy*dy);
-}
-
-function shortAddress(address){
-
-  if(!address)return "";
-
-  return address.slice(0,5)+"..."+address.slice(-4);
-}
-
-function positionWallet(address){
-
-  const angle=
-    Math.random()*Math.PI*2;
-
-  const radius=
-    180+Math.random()*380;
-
-  const centerX=900;
-  const centerY=550;
-
-  let x=
-    centerX+
-    Math.cos(angle)*radius;
-
-  let y=
-    centerY+
-    Math.sin(angle)*radius;
-
-  x=Math.max(50,Math.min(1750,x));
-  y=Math.max(50,Math.min(1050,y));
-
-  return {x,y};
-}
-
-function createWallet(address){
-
-  if(walletMap.has(address)){
-    return walletMap.get(address);
-  }
-
-  const pos=positionWallet(address);
-
-  const el=document.createElement("div");
-
-  el.className="wallet real";
-
-  el.style.left=pos.x+"px";
-  el.style.top=pos.y+"px";
-
-  el.dataset.address=address;
-  el.dataset.type="REAL WALLET";
-
-  const label=document.createElement("div");
-
-  label.className="wallet-label";
-
-  label.textContent=
-    shortAddress(address);
-
-  el.appendChild(label);
-
-  worldNodes.appendChild(el);
-
-  const wallet={
-    address,
-    x:pos.x,
-    y:pos.y,
-    el
-  };
-
-  walletMap.set(address,wallet);
-
-  el.addEventListener("click",e=>{
-
-    e.stopPropagation();
-
-    openWallet(address);
-
-  });
-
-  walletCount.textContent=walletMap.size;
-
-  return wallet;
-}
-
-function openWallet(address){
-
-  panel.style.display="block";
-
-  panelContent.innerHTML=
-    "<b>TYPE</b><br>"+
-    "REAL SOLANA WALLET"+
-    "<br><br>"+
-    "<b>ADDRESS</b><br>"+
-    address;
-
-}
-
-function openTransaction(signature,wallets){
-
-  panel.style.display="block";
-
-  panelContent.innerHTML=
-    "<b>TYPE</b><br>"+
-    "REAL SOLANA TRANSACTION"+
-    "<br><br>"+
-    "<b>SIGNATURE</b><br>"+
-    signature+
-    "<br><br>"+
-    "<b>ACCOUNTS</b><br>"+
-    wallets.length;
-
-}
-
-document.addEventListener("click",e=>{
-
-  if(
-    !e.target.closest(".wallet") &&
-    !e.target.closest(".tx") &&
-    !e.target.closest("#panel")
-  ){
-    panel.style.display="none";
-  }
-
-});
-
-function createTransaction(tx){
-
-  const wallets=
-    (tx.wallets||[])
-    .filter(Boolean);
-
-  if(!wallets.length)return;
-
-  const walletObjects=
-    wallets.map(createWallet);
-
-  const existing=
-    transactions.find(
-      t=>t.signature===tx.signature
+/* =========================
+   MOUSE WHEEL ZOOM
+========================= */
+
+space.addEventListener("wheel", e => {
+    e.preventDefault();
+
+    const direction = e.deltaY > 0 ? 0.9 : 1.1;
+
+    zoomAt(
+        e.clientX,
+        e.clientY,
+        scale * direction
     );
+}, { passive: false });
 
-  if(existing)return;
+/* =========================
+   TOUCH DRAG + PINCH ZOOM
+========================= */
 
-  const first=
-    walletObjects[0];
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
 
-  const last=
-    walletObjects[
-      Math.min(1,walletObjects.length-1)
-    ];
-
-  const x=
-    (first.x+last.x)/2;
-
-  const y=
-    (first.y+last.y)/2;
-
-  const el=document.createElement("div");
-
-  el.className="tx";
-
-  el.style.left=x+"px";
-  el.style.top=y+"px";
-
-  const label=document.createElement("div");
-
-  label.className="tx-label";
-
-  label.textContent=
-    "TX "+shortAddress(tx.signature);
-
-  el.appendChild(label);
-
-  worldNodes.appendChild(el);
-
-  el.addEventListener("click",e=>{
-
-    e.stopPropagation();
-
-    openTransaction(
-      tx.signature,
-      wallets
-    );
-
-  });
-
-  transactions.push({
-    signature:tx.signature,
-    wallets:walletObjects,
-    el
-  });
-
-  txCount.textContent=transactions.length;
-
-  addFeed(
-    "REAL TX  "+shortAddress(tx.signature),
-    true
-  );
-
-  createPulse(
-    x,
-    y
-  );
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
-function drawConnections(){
+function getTouchCenter(touches) {
+    return {
+        x: (touches[0].clientX + touches[1].clientX) / 2,
+        y: (touches[0].clientY + touches[1].clientY) / 2
+    };
+}
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+space.addEventListener("touchstart", e => {
+    e.preventDefault();
 
-  ctx.lineWidth=1;
+    if (e.touches.length === 1) {
+        dragging = true;
 
-  transactions.forEach(tx=>{
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
 
-    const wallets=tx.wallets;
-
-    if(wallets.length<2)return;
-
-    for(
-      let i=0;
-      i<wallets.length-1;
-      i++
-    ){
-
-      const a=wallets[i];
-      const b=wallets[i+1];
-
-      ctx.beginPath();
-
-      ctx.moveTo(a.x,a.y);
-      ctx.lineTo(b.x,b.y);
-
-      ctx.strokeStyle=
-        "rgba(164,105,255,.22)";
-
-      ctx.stroke();
-
+        startOffsetX = offsetX;
+        startOffsetY = offsetY;
     }
 
-  });
+    if (e.touches.length === 2) {
+        dragging = false;
 
-}
+        lastTouchDistance = getTouchDistance(e.touches);
+        lastTouchCenter = getTouchCenter(e.touches);
+    }
+}, { passive: false });
 
-function addFeed(text,real=false){
+space.addEventListener("touchmove", e => {
+    e.preventDefault();
 
-  const item=
-    document.createElement("div");
+    /* ONE FINGER = DRAG */
 
-  item.className=
-    "feed-item"+
-    (real?" real":"");
+    if (e.touches.length === 1 && dragging) {
+        offsetX =
+            startOffsetX +
+            (e.touches[0].clientX - dragStartX);
 
-  item.textContent=text;
+        offsetY =
+            startOffsetY +
+            (e.touches[0].clientY - dragStartY);
 
-  feedItems.prepend(item);
-
-  while(feedItems.children.length>7){
-
-    feedItems.lastChild.remove();
-
-  }
-
-}
-
-function createPulse(x,y){
-
-  const pulse=
-    document.createElement("div");
-
-  pulse.className="network-pulse";
-
-  pulse.style.left=x+"px";
-  pulse.style.top=y+"px";
-
-  worldNodes.appendChild(pulse);
-
-  setTimeout(()=>{
-    pulse.remove();
-  },2600);
-
-}
-
-async function loadSolana(){
-
-  activity.textContent="LOADING";
-
-  try{
-
-    const response=
-      await fetch("/api/solana");
-
-    if(!response.ok){
-
-      throw new Error(
-        "API "+response.status
-      );
-
+        applyTransform();
     }
 
-    const data=
-      await response.json();
+    /* TWO FINGERS = PINCH + MOVE */
 
-    if(!data.success){
+    if (e.touches.length === 2) {
 
-      throw new Error(
-        "RPC ERROR"
-      );
+        const newDistance = getTouchDistance(e.touches);
+        const center = getTouchCenter(e.touches);
 
+        if (lastTouchDistance !== null) {
+
+            const zoomFactor =
+                newDistance / lastTouchDistance;
+
+            const newScale =
+                clamp(scale * zoomFactor, MIN_SCALE, MAX_SCALE);
+
+            zoomAt(
+                center.x,
+                center.y,
+                newScale
+            );
+        }
+
+        if (lastTouchCenter !== null) {
+            offsetX += center.x - lastTouchCenter.x;
+            offsetY += center.y - lastTouchCenter.y;
+
+            applyTransform();
+        }
+
+        lastTouchDistance = newDistance;
+        lastTouchCenter = center;
     }
 
-    const txs=
-      data.transactions||[];
+}, { passive: false });
 
-    txs.forEach(createTransaction);
+space.addEventListener("touchend", e => {
 
-    activity.textContent=
-      txs.length+" LIVE TX";
+    if (e.touches.length === 0) {
+        dragging = false;
+        lastTouchDistance = null;
+        lastTouchCenter = null;
+    }
 
-    walletCount.textContent=
-      walletMap.size;
+    if (e.touches.length === 1) {
+        dragging = true;
 
-    txCount.textContent=
-      transactions.length;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
 
-    drawConnections();
+        startOffsetX = offsetX;
+        startOffsetY = offsetY;
 
-  }catch(error){
+        lastTouchDistance = null;
+        lastTouchCenter = null;
+    }
 
-    console.error(error);
+}, { passive: false });
 
-    activity.textContent="ERROR";
+/* =========================
+   WALLET
+========================= */
 
-    addFeed(
-      "RPC CONNECTION ERROR"
+function shorten(address) {
+    if (!address) return "";
+    return address.slice(0, 5) + "..." + address.slice(-4);
+}
+
+function createWallet(address) {
+
+    if (walletMap.has(address)) {
+        return walletMap.get(address);
+    }
+
+    const angle =
+        Math.random() * Math.PI * 2;
+
+    const radius =
+        250 + Math.random() * 850;
+
+    const x =
+        CENTER + Math.cos(angle) * radius;
+
+    const y =
+        CENTER + Math.sin(angle) * radius;
+
+    const node = document.createElement("div");
+
+    node.className = "node wallet";
+    node.style.left = x + "px";
+    node.style.top = y + "px";
+
+    const label = document.createElement("div");
+
+    label.className = "wallet-label";
+    label.textContent = shorten(address);
+
+    node.appendChild(label);
+
+    node.addEventListener("click", e => {
+        e.stopPropagation();
+
+        panel.style.display = "block";
+
+        panelAddress.textContent = address;
+
+        panelInfo.innerHTML =
+            "STATUS: ACTIVE<br>" +
+            "TYPE: ON-CHAIN ACCOUNT<br>" +
+            "SOURCE: SOLANA MAINNET";
+    });
+
+    worldNodes.appendChild(node);
+
+    const wallet = {
+        address,
+        x,
+        y,
+        node
+    };
+
+    walletMap.set(address, wallet);
+
+    return wallet;
+}
+
+/* =========================
+   TRANSACTION
+========================= */
+
+function createTransaction(tx) {
+
+    const wallets = tx.wallets || [];
+
+    if (wallets.length < 2) return;
+
+    const walletA = createWallet(wallets[0]);
+    const walletB = createWallet(wallets[1]);
+
+    const x =
+        (walletA.x + walletB.x) / 2;
+
+    const y =
+        (walletA.y + walletB.y) / 2;
+
+    const node = document.createElement("div");
+
+    node.className = "node tx";
+    node.style.left = x + "px";
+    node.style.top = y + "px";
+
+    node.title = tx.signature;
+
+    worldNodes.appendChild(node);
+
+    transactions.push({
+        walletA,
+        walletB,
+        node,
+        signature: tx.signature
+    });
+
+    addFeed(tx.signature);
+
+    node.classList.add("pulse");
+
+    setTimeout(() => {
+        node.classList.remove("pulse");
+    }, 1500);
+}
+
+/* =========================
+   CONNECTIONS
+========================= */
+
+function drawConnections() {
+
+    ctx.clearRect(
+        0,
+        0,
+        WORLD_SIZE,
+        WORLD_SIZE
     );
 
-  }
+    ctx.lineWidth = 1;
 
+    for (const tx of transactions) {
+
+        const a = tx.walletA;
+        const b = tx.walletB;
+
+        ctx.beginPath();
+
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+
+        ctx.strokeStyle =
+            "rgba(153,69,255,0.15)";
+
+        ctx.stroke();
+    }
 }
 
-addFeed(
-  "SOLANA WORLD INITIALIZED"
-);
+/* =========================
+   FEED
+========================= */
 
-addFeed(
-  "CONNECTING TO SOLANA MAINNET..."
-);
+function addFeed(signature) {
 
-addFeed(
-  "WAITING FOR REAL NETWORK ACTIVITY..."
-);
+    const item =
+        document.createElement("div");
+
+    item.className = "feed-item";
+
+    item.innerHTML =
+        "<strong>TX</strong> " +
+        shorten(signature);
+
+    feed.appendChild(item);
+
+    while (feed.children.length > 6) {
+        feed.removeChild(feed.children[1]);
+    }
+}
+
+/* =========================
+   LOAD SOLANA
+========================= */
+
+async function loadSolana() {
+
+    try {
+
+        const response =
+            await fetch("/api/solana");
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+            console.error(data);
+            return;
+        }
+
+        const wallets =
+            data.wallets || [];
+
+        for (const address of wallets) {
+            createWallet(address);
+        }
+
+        if (data.transactions) {
+
+            for (const tx of data.transactions) {
+
+                const exists =
+                    transactions.some(
+                        item =>
+                            item.signature === tx.signature
+                    );
+
+                if (!exists) {
+                    createTransaction(tx);
+                }
+            }
+        }
+
+        walletCount.textContent =
+            walletMap.size;
+
+        txCount.textContent =
+            transactions.length;
+
+        drawConnections();
+
+    } catch (error) {
+
+        console.error(
+            "Solana API error:",
+            error
+        );
+    }
+}
+
+/* =========================
+   BACKGROUND CLICK
+========================= */
+
+space.addEventListener("click", () => {
+    panel.style.display = "none";
+});
+
+/* =========================
+   START
+========================= */
+
+applyTransform();
 
 loadSolana();
 
 setInterval(
-  loadSolana,
-  15000
+    loadSolana,
+    15000
 );
 
 </script>
