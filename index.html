@@ -551,7 +551,7 @@ let touchScale = 1;
 
 const walletMap =
   new Map();
-
+let solanaBalances={};
 const transactions =
   [];
 
@@ -1051,70 +1051,54 @@ function openWallet(
         )
     );
 
-
-  const times =
-    related
-      .map(
-        tx =>
-          tx.blockTime
-      )
-      .filter(
-        Boolean
-      );
-
-
-  let lastActivity =
-    "UNKNOWN";
-
-
-  if(
-    times.length
-  ){
-
-    lastActivity =
-      new Date(
-        Math.max(...times) *
-        1000
-      ).toLocaleString();
-
-  }
-
+  const balance =
+    solanaBalances[address] || 0;
 
   panel.style.display =
     "block";
 
-
   panelContent.innerHTML =
+    "<div class='panel-title'>WALLET</div>"+
 
-    "<b>TYPE</b><br>" +
-    "REAL SOLANA WALLET" +
+    "<div class='panel-row'>"+
+      "<div class='panel-label'>TYPE</div>"+
+      "<div class='panel-value'>REAL SOLANA WALLET</div>"+
+    "</div>"+
 
-    "<br><br>" +
+    "<div class='panel-row'>"+
+      "<div class='panel-label'>ADDRESS</div>"+
+      "<div class='panel-value'>"+
+        address+
+      "</div>"+
+    "</div>"+
 
-    "<b>ADDRESS</b><br>" +
-    address +
+    "<div class='panel-row'>"+
+      "<div class='panel-label'>SOL BALANCE</div>"+
+      "<div class='panel-value balance'>"+
+        Number(balance).toFixed(6)+
+        " SOL"+
+      "</div>"+
+    "</div>"+
 
-    "<br><br>" +
+    "<div class='panel-row'>"+
+      "<div class='panel-label'>RELATED TX</div>"+
+      "<div class='panel-value'>"+
+        related.length+
+      "</div>"+
+    "</div>"+
 
-    "<b>RELATED TX</b><br>" +
-    related.length +
+    "<div class='panel-row'>"+
+      "<div class='panel-label'>LAST ACTIVITY</div>"+
+      "<div class='panel-value'>"+
+        getLastActivity(address)+
+      "</div>"+
+    "</div>"+
 
-    "<br><br>" +
-
-    "<b>LAST ACTIVITY</b><br>" +
-    lastActivity +
-
-    "<br><br>" +
-
-    `<a
-      class="solscan-link"
-      href="https://solscan.io/account/${address}"
-      target="_blank"
-      rel="noopener"
-    >
-      VIEW ON SOLSCAN
-    </a>`;
-
+    "<a class='solscan-link' href='https://solscan.io/account/"+
+      address+
+      "' target='_blank'>"+
+      "VIEW ON SOLSCAN →"+
+    "</a>";
 }
 
 
@@ -1641,7 +1625,7 @@ async function loadSolana(){
 
     const data =
       await response.json();
-
+solanaBalances=data.balances||{};
 
     if(
       !data.success
